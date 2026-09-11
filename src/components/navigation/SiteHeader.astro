@@ -1,0 +1,23 @@
+---
+import ThemeToggle from "@/components/theme/ThemeToggle.astro";
+import IconSearch from "@/assets/icons/IconSearch.svg";
+import { getAssetPath } from "@/utils/withBase";
+import MobileMenu from "./MobileMenu.astro";
+---
+
+<a class="skip-link" href="#main-content">跳到正文</a>
+<header class="site-header">
+  <a class="site-brand" href={getAssetPath("")}>系统工程笔记</a>
+  <nav class="desktop-nav" aria-label="主导航">
+    <a href={getAssetPath("articles/")}>文章</a>
+    <a href={getAssetPath("channels/")}>频道</a>
+    <a href={getAssetPath("topics/")}>专题</a>
+    <a href={getAssetPath("projects/")}>项目</a>
+    <a href={getAssetPath("about/")}>关于</a>
+    <a class="search-link" href={getAssetPath("search/")} aria-label="搜索">
+      <IconSearch aria-hidden="true" />
+    </a>
+    <ThemeToggle />
+  </nav>
+  <div class="mobile-nav"><MobileMenu /><ThemeToggle /></div>
+</header>

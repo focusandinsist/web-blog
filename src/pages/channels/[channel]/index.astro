@@ -1,0 +1,73 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getCollection } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import ArticleDirectoryList from "@/components/directory/ArticleDirectoryList.astro";
+import {
+  getChannelDirectory,
+  getPublishedArticles,
+  type ChannelDirectoryItem,
+} from "@/utils/content";
+import "@/styles/directory.css";
+
+export const getStaticPaths = (async () => {
+  const entries = await getCollection("posts");
+  const channels = getChannelDirectory(
+    getPublishedArticles(entries, new Date())
+  );
+
+  return channels.map(channel => ({
+    params: { channel: channel.id },
+    props: { channel },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  channel: ChannelDirectoryItem;
+}
+
+const { channel } = Astro.props;
+---
+
+<Layout
+  title={`${channel.name} | 系统工程笔记`}
+  description={channel.description}
+>
+  <Header />
+  <main id="main-content" class="directory-page">
+    <header class="directory-page__header">
+      <p class="directory-page__eyebrow">频道</p>
+      <h1>{channel.name}</h1>
+      <p class="directory-page__intro">{channel.description}</p>
+    </header>
+
+    {
+      channel.id === "investment" && (
+        <aside class="directory-note" role="note">
+          本频道记录个人研究与复盘，不构成任何投资建议。
+        </aside>
+      )
+    }
+
+    <section class="directory-channel-section" aria-labelledby="channel-topics">
+      <h2 id="channel-topics">频道专题</h2>
+      <div class="directory-topic-links">
+        {channel.topics.map(topic => <a href={topic.href}>{topic.name}</a>)}
+      </div>
+    </section>
+
+    <section
+      class="directory-channel-section"
+      aria-labelledby="channel-articles"
+    >
+      <h2 id="channel-articles">最新文章</h2>
+      <ArticleDirectoryList
+        articles={channel.articles}
+        emptyMessage="这个频道暂时没有文章。"
+      />
+    </section>
+  </main>
+  <Footer />
+</Layout>

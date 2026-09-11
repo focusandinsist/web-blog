@@ -1,0 +1,5 @@
+{"type":"server-started","port":64802,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:64802/?key=32def6b1461496cafa6fffbeb4c70403a2ab362a8e8c99a5f989ee43467e4cea","screen_dir":"D:\\Project\\web\\web-blog\\.superpowers\\brainstorm\\visual-20260910\\content","state_dir":"D:\\Project\\web\\web-blog\\.superpowers\\brainstorm\\visual-20260910\\state","idle_timeout_ms":14400000}
+{"type":"screen-added","file":"D:\\Project\\web\\web-blog\\.superpowers\\brainstorm\\visual-20260910\\content\\home-directions.html"}
+{"type":"screen-added","file":"D:\\Project\\web\\web-blog\\.superpowers\\brainstorm\\visual-20260910\\content\\homepage-variants-v2.html"}
+{"type":"screen-updated","file":"D:\\Project\\web\\web-blog\\.superpowers\\brainstorm\\visual-20260910\\content\\homepage-variants-v2.html"}
+{"type":"screen-added","file":"D:\\Project\\web\\web-blog\\.superpowers\\brainstorm\\visual-20260910\\content\\waiting-information-hierarchy.html"}

@@ -1,0 +1,23 @@
+---
+import ChannelCard from "./ChannelCard.astro";
+import type { HomeChannel } from "@/utils/content";
+
+interface Props {
+  channels: HomeChannel[];
+}
+
+const { channels } = Astro.props;
+---
+
+<section id="content-lobby" class="content-lobby" aria-labelledby="lobby-title">
+  <div class="content-lobby__heading">
+    <div>
+      <p>三个观察方向</p>
+      <h2 id="lobby-title">从这里开始阅读</h2>
+    </div>
+    <p>选择一个频道浏览，或直接打开最近的文章。</p>
+  </div>
+  <div class="content-lobby__grid">
+    {channels.map(channel => <ChannelCard channel={channel} />)}
+  </div>
+</section>

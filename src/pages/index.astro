@@ -1,0 +1,41 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import CoverHero from "@/components/home/CoverHero.astro";
+import ContentLobby from "@/components/home/ContentLobby.astro";
+import { getHomeChannels, getPublishedArticles } from "@/utils/content";
+import config from "@/config";
+import "@/styles/home.css";
+
+const entries = await getCollection("posts");
+const publishedArticles = getPublishedArticles(entries, new Date());
+const channels = getHomeChannels(publishedArticles, 3);
+const homePath = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+---
+
+<Layout title={`系统工程笔记 | ${config.site.author}`}>
+  <Header />
+  <main
+    id="main-content"
+    class="home-page"
+    data-layout="index"
+    data-home-path={homePath}
+  >
+    <CoverHero />
+    <ContentLobby channels={channels} />
+  </main>
+  <Footer />
+</Layout>
+
+<script>
+  document.addEventListener("astro:page-load", () => {
+    const indexLayout = (document.querySelector("#main-content") as HTMLElement)
+      ?.dataset;
+    const baseRoot = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+    if (indexLayout?.layout) {
+      sessionStorage.setItem("backUrl", indexLayout.homePath ?? baseRoot);
+    }
+  });
+</script>

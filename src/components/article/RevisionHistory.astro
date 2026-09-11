@@ -1,0 +1,32 @@
+---
+import type { PublishedArticleEntry } from "@/utils/content";
+
+interface Props {
+  revisions: PublishedArticleEntry["data"]["revisions"];
+}
+
+const { revisions } = Astro.props;
+const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+---
+
+{
+  revisions.length > 0 && (
+    <section class="article-end-section" aria-label="修订记录">
+      <h2>修订记录</h2>
+      <ol class="revision-list">
+        {revisions.toReversed().map(revision => (
+          <li>
+            <time datetime={revision.date.toISOString()}>
+              {dateFormatter.format(revision.date)}
+            </time>
+            <p>{revision.summary}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+  )
+}

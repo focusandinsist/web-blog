@@ -1,0 +1,52 @@
+---
+import IconMenuDeep from "@/assets/icons/IconMenuDeep.svg";
+import { getAssetPath } from "@/utils/withBase";
+
+const items = [
+  ["文章", "/articles/"],
+  ["频道", "/channels/"],
+  ["专题", "/topics/"],
+  ["项目", "/projects/"],
+  ["关于", "/about/"],
+];
+---
+
+<button
+  class="menu-trigger"
+  type="button"
+  aria-expanded="false"
+  aria-controls="mobile-menu"
+  aria-label="打开菜单"
+>
+  <IconMenuDeep aria-hidden="true" />
+</button>
+<div id="mobile-menu" class="mobile-menu" hidden>
+  <nav aria-label="移动导航">
+    <ul>
+      {
+        items.map(([label, href]) => (
+          <li>
+            <a href={getAssetPath(href)}>{label}</a>
+          </li>
+        ))
+      }
+      <li><a href={getAssetPath("search/")}>搜索</a></li>
+    </ul>
+  </nav>
+</div>
+<script>
+  const setupMobileMenu = () => {
+    const trigger = document.querySelector<HTMLButtonElement>(".menu-trigger");
+    const menu = document.querySelector<HTMLElement>("#mobile-menu");
+    if (!trigger || !menu || trigger.dataset.ready) return;
+    trigger.dataset.ready = "true";
+    trigger.addEventListener("click", () => {
+      const open = trigger.getAttribute("aria-expanded") === "true";
+      trigger.setAttribute("aria-expanded", String(!open));
+      trigger.setAttribute("aria-label", open ? "打开菜单" : "关闭菜单");
+      menu.hidden = open;
+    });
+  };
+  setupMobileMenu();
+  document.addEventListener("astro:after-swap", setupMobileMenu);
+</script>

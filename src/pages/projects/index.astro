@@ -1,0 +1,33 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import ArticleDirectoryList from "@/components/directory/ArticleDirectoryList.astro";
+import { getProjectArticles, getPublishedArticles } from "@/utils/content";
+import "@/styles/directory.css";
+
+const entries = await getCollection("posts");
+const projects = getProjectArticles(getPublishedArticles(entries, new Date()));
+---
+
+<Layout
+  title="项目复盘 | 系统工程笔记"
+  description="匿名化的工程项目案例与决策复盘。"
+>
+  <Header />
+  <main id="main-content" class="directory-page">
+    <header class="directory-page__header">
+      <p class="directory-page__eyebrow">案例研究</p>
+      <h1>项目复盘</h1>
+      <p class="directory-page__intro">
+        去除组织和敏感信息，保留问题、约束、取舍与结果。
+      </p>
+    </header>
+    <ArticleDirectoryList
+      articles={projects}
+      emptyMessage="暂无公开的项目复盘。"
+    />
+  </main>
+  <Footer />
+</Layout>

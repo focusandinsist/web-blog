@@ -1,0 +1,77 @@
+---
+import type { PublishedArticleEntry } from "@/utils/content";
+import { CHANNELS, TOPICS } from "@/data/taxonomy";
+
+interface Props {
+  article: PublishedArticleEntry;
+  readingMinutes: number;
+}
+
+const { article, readingMinutes } = Astro.props;
+const { data } = article;
+const channel = CHANNELS.find(item => item.id === data.channel);
+const primaryTopic = data.topics[0];
+const topic = TOPICS.find(item => item.id === primaryTopic);
+const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+const statusLabels = {
+  complete: "完整",
+  evolving: "持续更新",
+  archived: "已归档",
+};
+---
+
+<header class="article-header" data-article-header>
+  <nav class="article-trail" aria-label="文章路径">
+    <ol>
+      <li><a href={channel?.href}>{channel?.name}</a></li>
+      <li aria-hidden="true">/</li>
+      <li>
+        <a href={topic?.href ?? `/topics/${primaryTopic}/`}
+          >{topic?.name ?? primaryTopic}</a
+        >
+      </li>
+      <li aria-hidden="true">/</li>
+      <li aria-current="page">文章</li>
+    </ol>
+  </nav>
+
+  <h1>{data.title}</h1>
+  <p class="article-header__description">{data.description}</p>
+
+  <dl class="article-meta" data-article-meta>
+    <div>
+      <dt>发布于</dt>
+      <dd>
+        <time datetime={data.pubDatetime.toISOString()}
+          >{dateFormatter.format(data.pubDatetime)}</time
+        >
+      </dd>
+    </div>
+    {
+      data.modDatetime && (
+        <div>
+          <dt>更新于</dt>
+          <dd>
+            <time datetime={data.modDatetime.toISOString()}>
+              {dateFormatter.format(data.modDatetime)}
+            </time>
+          </dd>
+        </div>
+      )
+    }
+    <div><dt>阅读时间</dt><dd>{readingMinutes} 分钟阅读</dd></div>
+    <div><dt>状态</dt><dd>{statusLabels[data.status]}</dd></div>
+  </dl>
+
+  {
+    data.channel === "investment" && (
+      <aside class="article-risk-note" role="note">
+        本文是个人研究与复盘记录，不构成任何投资建议。
+      </aside>
+    )
+  }
+</header>

@@ -1,0 +1,141 @@
+---
+import type { MarkdownHeading } from "astro";
+import type {
+  PublishedArticleEntry,
+  SeriesContext,
+  TopicContext,
+} from "@/utils/content";
+import PostLayout from "@/layouts/PostLayout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import ArticleHeader from "@/components/article/ArticleHeader.astro";
+import ContextRail from "@/components/article/ContextRail.astro";
+import MobileReadingBar from "@/components/article/MobileReadingBar.astro";
+import SeriesProgress from "@/components/article/SeriesProgress.astro";
+import FurtherReading from "@/components/article/FurtherReading.astro";
+import RevisionHistory from "@/components/article/RevisionHistory.astro";
+import "photoswipe/style.css";
+import "@/styles/article.css";
+
+interface Props {
+  article: PublishedArticleEntry;
+  headings: MarkdownHeading[];
+  topicContext: TopicContext;
+  seriesContext: SeriesContext | null;
+  furtherReading: PublishedArticleEntry[];
+  readingMinutes: number;
+}
+
+const {
+  article,
+  headings,
+  topicContext,
+  seriesContext,
+  furtherReading,
+  readingMinutes,
+} = Astro.props;
+---
+
+<PostLayout
+  title={`${article.data.title} | 系统工程笔记`}
+  description={article.data.description}
+  canonicalURL={article.data.canonicalURL}
+  pubDatetime={article.data.pubDatetime}
+  modDatetime={article.data.modDatetime}
+>
+  <Header />
+  <main id="main-content" class="article-page" data-pagefind-body>
+    <div class="sr-only" aria-hidden="true">
+      <span data-pagefind-filter="频道" data-pagefind-meta="channel">
+        {article.data.channel}
+      </span>
+      {
+        article.data.topics.map(topic => (
+          <span data-pagefind-filter="专题" data-pagefind-meta="topic">
+            {topic}
+          </span>
+        ))
+      }
+      {
+        article.data.tags.map(tag => (
+          <span data-pagefind-filter="标签" data-pagefind-meta="tag">
+            {tag}
+          </span>
+        ))
+      }
+    </div>
+    <ArticleHeader {article} {readingMinutes} />
+
+    <div class="article-shell">
+      <article id="article" class="article-prose app-prose">
+        <slot />
+      </article>
+      <ContextRail {headings} {topicContext} />
+    </div>
+
+    <div class="article-footer-content">
+      <SeriesProgress series={seriesContext} />
+      <RevisionHistory revisions={article.data.revisions} />
+      <FurtherReading articles={furtherReading} />
+    </div>
+  </main>
+  <MobileReadingBar title={article.data.title} {headings} {topicContext} />
+  <Footer />
+</PostLayout>
+
+<script>
+  import PhotoSwipeLightbox from "photoswipe/lightbox";
+
+  let lightbox: PhotoSwipeLightbox | undefined;
+
+  function enhanceArticleContent() {
+    const article = document.querySelector<HTMLElement>("#article");
+    if (!article) return;
+
+    for (const pre of article.querySelectorAll<HTMLPreElement>("pre")) {
+      if (pre.dataset.copyReady === "true") continue;
+      pre.tabIndex = 0;
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "copy-code article-interactive";
+      button.setAttribute("aria-label", "复制代码");
+      button.title = "复制代码";
+      button.textContent = "复制";
+      button.addEventListener("click", async () => {
+        const code = pre.querySelector("code")?.textContent ?? "";
+        await navigator.clipboard.writeText(code);
+        button.textContent = "已复制";
+        window.setTimeout(() => (button.textContent = "复制"), 900);
+      });
+      pre.appendChild(button);
+      pre.dataset.copyReady = "true";
+    }
+
+    for (const link of article.querySelectorAll<HTMLAnchorElement>(
+      "figure a[data-pswp-src]"
+    )) {
+      const image = link.querySelector("img");
+      if (!image) continue;
+      const updateDimensions = () => {
+        link.href = image.currentSrc || image.src;
+        link.dataset.pswpSrc = image.currentSrc || image.src;
+        link.dataset.pswpWidth = String(image.naturalWidth || image.width);
+        link.dataset.pswpHeight = String(image.naturalHeight || image.height);
+      };
+      if (image.complete) updateDimensions();
+      else image.addEventListener("load", updateDimensions, { once: true });
+    }
+
+    lightbox?.destroy();
+    lightbox = new PhotoSwipeLightbox({
+      gallery: "#article",
+      children: "figure a[data-pswp-src]",
+      pswpModule: () => import("photoswipe"),
+    });
+    lightbox.init();
+  }
+
+  document.addEventListener("astro:page-load", enhanceArticleContent);
+  enhanceArticleContent();
+</script>

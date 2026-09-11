@@ -1,0 +1,71 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getCollection } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import ArticleDirectoryList from "@/components/directory/ArticleDirectoryList.astro";
+import {
+  getPublishedArticles,
+  getTopicDirectory,
+  type TopicDirectoryItem,
+} from "@/utils/content";
+import { getPostUrl } from "@/utils/getPostPaths";
+import "@/styles/directory.css";
+
+export const getStaticPaths = (async () => {
+  const entries = await getCollection("posts");
+  const topics = getTopicDirectory(getPublishedArticles(entries, new Date()));
+
+  return topics.map(topic => ({
+    params: { topic: topic.id },
+    props: { topic },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  topic: TopicDirectoryItem;
+}
+
+const { topic } = Astro.props;
+---
+
+<Layout title={`${topic.name} | 系统工程笔记`} description={topic.description}>
+  <Header />
+  <main id="main-content" class="directory-page">
+    <header class="directory-page__header">
+      <p class="directory-page__eyebrow">专题</p>
+      <h1>{topic.name}</h1>
+      <p class="directory-page__intro">{topic.description}</p>
+    </header>
+
+    {
+      topic.series.length > 0 && (
+        <section class="directory-series" aria-labelledby="topic-series">
+          <h2 id="topic-series">阅读系列</h2>
+          <ul>
+            {topic.series.map(series => (
+              <li>
+                <a
+                  href={getPostUrl(
+                    series.articles[0].id,
+                    series.articles[0].filePath,
+                    Astro.currentLocale
+                  )}
+                >
+                  {series.id}（{series.articles.length} 篇）
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <ArticleDirectoryList
+      articles={topic.articles}
+      emptyMessage="这个专题暂时没有文章。"
+    />
+  </main>
+  <Footer />
+</Layout>

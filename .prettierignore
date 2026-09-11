@@ -1,0 +1,20 @@
+# Ignore everything
+/*
+
+# Except these files & folders
+!/src
+!/public
+!/.github
+!/tests
+!tsconfig.json
+!astro.config.ts
+!vitest.config.ts
+!playwright.config.ts
+!package.json
+!.prettierrc
+!eslint.config.js
+!README.md
+!.vscode
+
+# Ignore MDX files
+*.mdx

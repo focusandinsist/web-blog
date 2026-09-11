@@ -1,0 +1,50 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import ArticleLayout from "@/layouts/ArticleLayout.astro";
+import { getPostSlug } from "@/utils/getPostPaths";
+import {
+  getFurtherReading,
+  getPublishedArticles,
+  getSeriesContext,
+  getTopicContext,
+  type PublishedArticleEntry,
+} from "@/utils/content";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("posts");
+  const articles = getPublishedArticles(entries, new Date());
+
+  return articles.map(article => ({
+    params: { slug: getPostSlug(article.id, article.filePath) },
+    props: { article },
+  }));
+}
+
+interface Props {
+  article: CollectionEntry<"posts">;
+}
+
+const { article: rawArticle }: Props = Astro.props;
+const article = rawArticle as PublishedArticleEntry;
+const entries = await getCollection("posts");
+const articles = getPublishedArticles(entries, new Date());
+const topicContext = getTopicContext(articles, article.id);
+const seriesContext = getSeriesContext(articles, article.id);
+const furtherReading = getFurtherReading(articles, article.id);
+const { Content, headings } = await render(article);
+const readingMinutes = Math.max(
+  1,
+  Math.ceil((article.body?.length ?? 0) / 500)
+);
+---
+
+<ArticleLayout
+  {article}
+  {headings}
+  {topicContext}
+  {seriesContext}
+  {furtherReading}
+  {readingMinutes}
+>
+  <Content />
+</ArticleLayout>

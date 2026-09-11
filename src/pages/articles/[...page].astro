@@ -1,0 +1,145 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getCollection } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import ArticleDirectoryList from "@/components/directory/ArticleDirectoryList.astro";
+import {
+  getChannelDirectory,
+  getPublishedArticles,
+  getTopicDirectory,
+} from "@/utils/content";
+import "@/styles/directory.css";
+
+export const getStaticPaths = (() => [
+  { params: { page: undefined } },
+]) satisfies GetStaticPaths;
+
+const entries = await getCollection("posts");
+const articles = getPublishedArticles(entries, new Date());
+const channels = getChannelDirectory(articles);
+const topics = getTopicDirectory(articles);
+---
+
+<Layout
+  title="全部文章 | 系统工程笔记"
+  description="按频道和专题浏览全部已发布文章。"
+>
+  <Header />
+  <main id="main-content" class="directory-page">
+    <header class="directory-page__header">
+      <p class="directory-page__eyebrow">文章目录</p>
+      <h1>全部文章</h1>
+      <p class="directory-page__intro">
+        按频道和专题筛选，或从最近更新开始阅读。
+      </p>
+    </header>
+
+    <form
+      class="directory-filter"
+      action="/articles/"
+      method="get"
+      data-directory-filter
+    >
+      <label>
+        频道
+        <select name="channel">
+          <option value="">全部频道</option>
+          {
+            channels.map(channel => (
+              <option value={channel.id}>{channel.name}</option>
+            ))
+          }
+        </select>
+      </label>
+      <label>
+        专题
+        <select name="topic">
+          <option value="">全部专题</option>
+          {topics.map(topic => <option value={topic.id}>{topic.name}</option>)}
+        </select>
+      </label>
+      <a class="directory-filter__reset" href="/articles/">清除筛选</a>
+    </form>
+
+    <p class="directory-filter__count" aria-live="polite" data-results-count>
+      共 {articles.length} 篇文章
+    </p>
+    <ArticleDirectoryList {articles} />
+    <p class="directory-empty" data-filter-empty hidden>
+      没有符合当前条件的文章。
+    </p>
+  </main>
+  <Footer />
+</Layout>
+
+<script>
+  function initializeDirectoryFilter() {
+    const form = document.querySelector<HTMLFormElement>(
+      "[data-directory-filter]"
+    );
+    if (!form || form.dataset.ready === "true") return;
+
+    const channelSelect = form.elements.namedItem("channel");
+    const topicSelect = form.elements.namedItem("topic");
+    if (!(channelSelect instanceof HTMLSelectElement)) return;
+    if (!(topicSelect instanceof HTMLSelectElement)) return;
+
+    const items = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-article-item]")
+    );
+    const count = document.querySelector<HTMLElement>("[data-results-count]");
+    const empty = document.querySelector<HTMLElement>("[data-filter-empty]");
+    const initialParams = new URLSearchParams(window.location.search);
+
+    if (
+      channelSelect.querySelector(
+        `option[value="${CSS.escape(initialParams.get("channel") ?? "")}"]`
+      )
+    ) {
+      channelSelect.value = initialParams.get("channel") ?? "";
+    }
+    if (
+      topicSelect.querySelector(
+        `option[value="${CSS.escape(initialParams.get("topic") ?? "")}"]`
+      )
+    ) {
+      topicSelect.value = initialParams.get("topic") ?? "";
+    }
+
+    const applyFilters = () => {
+      const channel = channelSelect.value;
+      const topic = topicSelect.value;
+      let visibleCount = 0;
+
+      for (const item of items) {
+        const channelMatches = !channel || item.dataset.channel === channel;
+        const topics = item.dataset.topics?.split(" ") ?? [];
+        const topicMatches = !topic || topics.includes(topic);
+        item.hidden = !(channelMatches && topicMatches);
+        if (!item.hidden) visibleCount += 1;
+      }
+
+      if (count) count.textContent = `共 ${visibleCount} 篇文章`;
+      if (empty) empty.hidden = visibleCount > 0;
+
+      const params = new URLSearchParams();
+      if (channel) params.set("channel", channel);
+      if (topic) params.set("topic", topic);
+      const query = params.toString();
+      history.replaceState(null, "", `/articles/${query ? `?${query}` : ""}`);
+    };
+
+    form.addEventListener("change", applyFilters);
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+      applyFilters();
+    });
+    form.dataset.ready = "true";
+    applyFilters();
+  }
+
+  document.addEventListener("astro:page-load", initializeDirectoryFilter);
+  initializeDirectoryFilter();
+</script>

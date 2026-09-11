@@ -1,0 +1,48 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import { getChannelDirectory, getPublishedArticles } from "@/utils/content";
+import "@/styles/directory.css";
+
+const entries = await getCollection("posts");
+const channels = getChannelDirectory(getPublishedArticles(entries, new Date()));
+---
+
+<Layout
+  title="频道 | 系统工程笔记"
+  description="技术、生活与投资三个长期记录频道。"
+>
+  <Header />
+  <main id="main-content" class="directory-page">
+    <header class="directory-page__header">
+      <p class="directory-page__eyebrow">内容方向</p>
+      <h1>频道</h1>
+      <p class="directory-page__intro">
+        三个稳定的观察方向，各自保留不同的问题与复盘方式。
+      </p>
+    </header>
+    <div class="directory-index-grid">
+      {
+        channels.map(channel => (
+          <article class="directory-index-card" data-accent={channel.accent}>
+            <h2>
+              <a href={channel.href}>{channel.name}</a>
+            </h2>
+            <p>{channel.description}</p>
+            <span class="directory-index-card__count">
+              {channel.articles.length} 篇文章
+            </span>
+            <div class="directory-topic-links">
+              {channel.topics.map(topic => (
+                <a href={topic.href}>{topic.name}</a>
+              ))}
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </main>
+  <Footer />
+</Layout>

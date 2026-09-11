@@ -1,0 +1,58 @@
+---
+import type { SeriesContext } from "@/utils/content";
+import { getPostUrl } from "@/utils/getPostPaths";
+
+interface Props {
+  series: SeriesContext | null;
+}
+
+const { series } = Astro.props;
+---
+
+{
+  series && (
+    <nav class="series-progress" aria-label="系列进度">
+      <div class="series-progress__summary">
+        <div>
+          <p>系列 · {series.id}</p>
+          <h2>
+            第 {series.currentIndex + 1} / {series.articles.length} 篇
+          </h2>
+        </div>
+        <progress value={series.currentIndex + 1} max={series.articles.length}>
+          {series.currentIndex + 1} / {series.articles.length}
+        </progress>
+      </div>
+      <div class="series-progress__links">
+        {series.previous ? (
+          <a
+            href={getPostUrl(
+              series.previous.id,
+              series.previous.filePath,
+              Astro.currentLocale
+            )}
+          >
+            <span>上一篇</span>
+            {series.previous.data.title}
+          </a>
+        ) : (
+          <span />
+        )}
+        {series.next ? (
+          <a
+            href={getPostUrl(
+              series.next.id,
+              series.next.filePath,
+              Astro.currentLocale
+            )}
+          >
+            <span>下一篇</span>
+            {series.next.data.title}
+          </a>
+        ) : (
+          <span />
+        )}
+      </div>
+    </nav>
+  )
+}

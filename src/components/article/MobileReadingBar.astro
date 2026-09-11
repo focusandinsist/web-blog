@@ -1,0 +1,408 @@
+---
+import type { MarkdownHeading } from "astro";
+import type { TopicContext } from "@/utils/content";
+import IconMenuDeep from "@/assets/icons/IconMenuDeep.svg";
+import IconX from "@/assets/icons/IconX.svg";
+import { TOPICS } from "@/data/taxonomy";
+import { getPostUrl } from "@/utils/getPostPaths";
+
+interface Props {
+  title: string;
+  headings: MarkdownHeading[];
+  topicContext: TopicContext;
+}
+
+const { title, headings, topicContext } = Astro.props;
+const outline = headings.filter(
+  heading =>
+    (heading.depth === 2 || heading.depth === 3) &&
+    heading.slug !== "footnote-label"
+);
+let parentSlug = "";
+const outlineItems = outline.map(heading => {
+  if (heading.depth === 2) parentSlug = heading.slug;
+  return { ...heading, parentSlug };
+});
+const initialBranch = outlineItems.find(heading => heading.depth === 2)?.slug;
+const topic = TOPICS.find(item => item.id === topicContext.topic);
+---
+
+<section
+  class="mobile-reading-bar"
+  aria-label="移动阅读栏"
+  aria-hidden="true"
+  data-mobile-reading-bar
+>
+  <div class="mobile-reading-bar__copy">
+    <strong title={title}>{title}</strong>
+    <progress aria-label="阅读进度" max="100" value="0">0%</progress>
+  </div>
+  <button
+    type="button"
+    class="mobile-reading-bar__trigger"
+    aria-label="打开阅读导航"
+    aria-haspopup="dialog"
+    aria-expanded="false"
+    aria-controls="mobile-reading-drawer"
+    data-reading-drawer-trigger
+  >
+    <IconMenuDeep aria-hidden="true" />
+  </button>
+</section>
+
+<div
+  id="mobile-reading-drawer"
+  class="mobile-reading-drawer"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="mobile-reading-drawer-title"
+  data-reading-drawer
+  hidden
+>
+  <div
+    class="mobile-reading-drawer__backdrop"
+    aria-hidden="true"
+    data-reading-drawer-close
+  >
+  </div>
+  <div class="mobile-reading-drawer__sheet">
+    <header>
+      <h2 id="mobile-reading-drawer-title">阅读导航</h2>
+      <button
+        type="button"
+        class="mobile-reading-drawer__close"
+        aria-label="关闭阅读导航"
+        data-reading-drawer-close
+      >
+        <IconX aria-hidden="true" />
+      </button>
+    </header>
+
+    <div class="mobile-reading-tabs" role="tablist" aria-label="阅读导航视图">
+      <button
+        id="mobile-article-tab"
+        type="button"
+        role="tab"
+        aria-selected="true"
+        aria-controls="mobile-article-panel"
+        data-reading-tab="article"
+      >
+        本文
+      </button>
+      <button
+        id="mobile-topic-tab"
+        type="button"
+        role="tab"
+        aria-selected="false"
+        aria-controls="mobile-topic-panel"
+        tabindex="-1"
+        data-reading-tab="topic"
+      >
+        专题
+      </button>
+    </div>
+
+    <div
+      id="mobile-article-panel"
+      class="mobile-reading-panel"
+      role="tabpanel"
+      aria-labelledby="mobile-article-tab"
+      data-reading-panel="article"
+    >
+      <ol>
+        {
+          outlineItems.map((heading, index) => (
+            <li
+              data-mobile-depth={heading.depth}
+              data-parent-slug={heading.parentSlug}
+              hidden={
+                heading.depth === 3 && heading.parentSlug !== initialBranch
+              }
+            >
+              <a
+                href={`#${heading.slug}`}
+                data-mobile-outline-link
+                data-heading-slug={heading.slug}
+                data-heading-parent={heading.parentSlug}
+                aria-current={index === 0 ? "location" : undefined}
+              >
+                {heading.text}
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+
+    <div
+      id="mobile-topic-panel"
+      class="mobile-reading-panel"
+      role="tabpanel"
+      aria-labelledby="mobile-topic-tab"
+      data-reading-panel="topic"
+      hidden
+    >
+      <h3>{topic?.name ?? topicContext.topic}</h3>
+      <ol>
+        {
+          topicContext.articles.map(({ article, isCurrent }) => (
+            <li>
+              <a
+                href={getPostUrl(
+                  article.id,
+                  article.filePath,
+                  Astro.currentLocale
+                )}
+                aria-current={isCurrent ? "page" : undefined}
+              >
+                {article.data.title}
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+      <a
+        class="mobile-reading-panel__all"
+        href={topic?.href ?? `/topics/${topicContext.topic}/`}
+      >
+        查看完整专题
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  let mobileReadingController: AbortController | undefined;
+
+  function initializeMobileReadingBar() {
+    mobileReadingController?.abort();
+    mobileReadingController = new AbortController();
+    const { signal } = mobileReadingController;
+
+    const bar = document.querySelector<HTMLElement>(
+      "[data-mobile-reading-bar]"
+    );
+    const trigger = document.querySelector<HTMLButtonElement>(
+      "[data-reading-drawer-trigger]"
+    );
+    const drawer = document.querySelector<HTMLElement>("[data-reading-drawer]");
+    const sheet = drawer?.querySelector<HTMLElement>(
+      ".mobile-reading-drawer__sheet"
+    );
+    const article = document.querySelector<HTMLElement>("#article");
+    const articleHeader = document.querySelector<HTMLElement>(
+      "[data-article-header]"
+    );
+    const progress = bar?.querySelector<HTMLProgressElement>("progress");
+    if (!bar || !trigger || !drawer || !sheet || !article || !articleHeader) {
+      return;
+    }
+
+    let savedScrollY = 0;
+    let drawerOpen = false;
+    let inertTargets: HTMLElement[] = [];
+    const bodyStyle = {
+      position: "",
+      top: "",
+      width: "",
+      overflowY: "",
+    };
+
+    const setBarVisible = (visible: boolean) => {
+      bar.classList.toggle("is-visible", visible);
+      bar.setAttribute("aria-hidden", String(!visible));
+    };
+
+    const updateProgress = () => {
+      if (!progress) return;
+      const articleTop = article.getBoundingClientRect().top + window.scrollY;
+      const articleEnd = articleTop + article.offsetHeight - window.innerHeight;
+      const distance = Math.max(1, articleEnd - articleTop);
+      const value = Math.round(
+        Math.min(1, Math.max(0, (window.scrollY - articleTop) / distance)) * 100
+      );
+      progress.value = value;
+      progress.textContent = `${value}%`;
+    };
+
+    const activateTab = (name: "article" | "topic", moveFocus = true) => {
+      const tabs =
+        drawer.querySelectorAll<HTMLButtonElement>("[data-reading-tab]");
+      const panels = drawer.querySelectorAll<HTMLElement>(
+        "[data-reading-panel]"
+      );
+      for (const tab of tabs) {
+        const active = tab.dataset.readingTab === name;
+        tab.setAttribute("aria-selected", String(active));
+        tab.tabIndex = active ? 0 : -1;
+        if (active && moveFocus) tab.focus();
+      }
+      for (const panel of panels) {
+        panel.hidden = panel.dataset.readingPanel !== name;
+      }
+    };
+
+    const unlockPage = (restorePosition: boolean) => {
+      Object.assign(document.body.style, bodyStyle);
+      for (const target of inertTargets) target.removeAttribute("inert");
+      inertTargets = [];
+      if (restorePosition) {
+        window.scrollTo({ top: savedScrollY, behavior: "instant" });
+      }
+    };
+
+    const closeDrawer = (restorePosition = true, restoreFocus = true) => {
+      if (!drawerOpen) return;
+      drawerOpen = false;
+      drawer.hidden = true;
+      trigger.setAttribute("aria-expanded", "false");
+      unlockPage(restorePosition);
+      if (restoreFocus) trigger.focus({ preventScroll: true });
+    };
+
+    const openDrawer = () => {
+      if (drawerOpen) return;
+      drawerOpen = true;
+      savedScrollY = window.scrollY;
+      bodyStyle.position = document.body.style.position;
+      bodyStyle.top = document.body.style.top;
+      bodyStyle.width = document.body.style.width;
+      bodyStyle.overflowY = document.body.style.overflowY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${savedScrollY}px`;
+      document.body.style.width = "100%";
+      document.body.style.overflowY = "scroll";
+
+      inertTargets = Array.from(
+        document.querySelectorAll<HTMLElement>(
+          ".skip-link, .site-header, #main-content, body > footer, [data-mobile-reading-bar]"
+        )
+      ).filter(target => !target.hasAttribute("inert"));
+      for (const target of inertTargets) target.setAttribute("inert", "");
+
+      drawer.hidden = false;
+      trigger.setAttribute("aria-expanded", "true");
+      activateTab("article", false);
+      drawer
+        .querySelector<HTMLButtonElement>(".mobile-reading-drawer__close")
+        ?.focus();
+    };
+
+    const updateMobileOutline = (headingId: string) => {
+      const links = Array.from(
+        drawer.querySelectorAll<HTMLAnchorElement>("[data-mobile-outline-link]")
+      );
+      const current = links.find(
+        link => link.dataset.headingSlug === headingId
+      );
+      if (!current) return;
+      const currentBranch = current.dataset.headingParent;
+      for (const link of links) {
+        if (link === current) link.setAttribute("aria-current", "location");
+        else link.removeAttribute("aria-current");
+        const item = link.closest<HTMLLIElement>("[data-mobile-depth]");
+        if (item?.dataset.mobileDepth === "3") {
+          item.hidden = link.dataset.headingParent !== currentBranch;
+        }
+      }
+    };
+
+    const headerObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (entry) {
+          setBarVisible(
+            !entry.isIntersecting && entry.boundingClientRect.bottom <= 0
+          );
+        }
+      },
+      { threshold: 0 }
+    );
+    headerObserver.observe(articleHeader);
+    signal.addEventListener("abort", () => headerObserver.disconnect());
+
+    updateProgress();
+    window.addEventListener("scroll", updateProgress, {
+      passive: true,
+      signal,
+    });
+    window.addEventListener("resize", updateProgress, {
+      passive: true,
+      signal,
+    });
+    trigger.addEventListener("click", openDrawer, { signal });
+    drawer
+      .querySelectorAll<HTMLElement>("[data-reading-drawer-close]")
+      .forEach(close =>
+        close.addEventListener("click", () => closeDrawer(), { signal })
+      );
+    drawer
+      .querySelectorAll<HTMLButtonElement>("[data-reading-tab]")
+      .forEach(tab => {
+        tab.addEventListener(
+          "click",
+          () => activateTab(tab.dataset.readingTab as "article" | "topic"),
+          { signal }
+        );
+        tab.addEventListener(
+          "keydown",
+          event => {
+            if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+            event.preventDefault();
+            activateTab(
+              tab.dataset.readingTab === "article" ? "topic" : "article"
+            );
+          },
+          { signal }
+        );
+      });
+    drawer
+      .querySelectorAll<HTMLAnchorElement>("[data-mobile-outline-link]")
+      .forEach(link =>
+        link.addEventListener("click", () => closeDrawer(false, false), {
+          signal,
+        })
+      );
+    document.addEventListener(
+      "article-heading-change",
+      event => updateMobileOutline((event as CustomEvent<string>).detail),
+      { signal }
+    );
+    document.addEventListener(
+      "astro:before-swap",
+      () => closeDrawer(false, false),
+      { signal }
+    );
+    document.addEventListener(
+      "keydown",
+      event => {
+        if (!drawerOpen) return;
+        if (event.key === "Escape") {
+          event.preventDefault();
+          closeDrawer();
+          return;
+        }
+        if (event.key !== "Tab") return;
+
+        const focusable = Array.from(
+          drawer.querySelectorAll<HTMLElement>(
+            'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          )
+        ).filter(element => !element.closest("[hidden]"));
+        const first = focusable[0];
+        const last = focusable.at(-1);
+        if (!first || !last) return;
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      },
+      { signal }
+    );
+  }
+
+  document.addEventListener("astro:page-load", initializeMobileReadingBar);
+  initializeMobileReadingBar();
+</script>

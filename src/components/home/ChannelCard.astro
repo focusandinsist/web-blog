@@ -1,0 +1,95 @@
+---
+import { Image } from "astro:assets";
+import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
+import channelTechnology from "@/assets/images/channel-technology.webp";
+import channelLife from "@/assets/images/channel-life.webp";
+import channelInvestment from "@/assets/images/channel-investment.webp";
+import type { HomeChannel } from "@/utils/content";
+import { getPostUrl } from "@/utils/getPostPaths";
+
+interface Props {
+  channel: HomeChannel;
+}
+
+const { channel } = Astro.props;
+
+const channelImages: Record<
+  HomeChannel["id"],
+  { src: ImageMetadata; alt: string }
+> = {
+  technology: {
+    src: channelTechnology,
+    alt: "蓝灰色纯色频道背景",
+  },
+  life: {
+    src: channelLife,
+    alt: "暖红色纯色频道背景",
+  },
+  investment: {
+    src: channelInvestment,
+    alt: "绿色纯色频道背景",
+  },
+};
+
+const image = channelImages[channel.id];
+const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+---
+
+<article
+  class={`channel-card channel-card--${channel.id}`}
+  data-channel-card
+  data-accent={channel.accent}
+>
+  <div class="channel-card__media">
+    <Image
+      src={image.src}
+      alt={image.alt}
+      widths={[480, 720, 960]}
+      sizes={channel.id === "technology"
+        ? "(min-width: 760px) 58vw, 100vw"
+        : "(min-width: 760px) 38vw, 100vw"}
+      quality={50}
+      loading="lazy"
+    />
+  </div>
+  <div class="channel-card__body">
+    <header class="channel-card__header">
+      <div>
+        <p class="channel-card__label">频道</p>
+        <h3>
+          <a href={channel.href}>
+            {channel.name}
+            <IconArrowRight aria-hidden="true" />
+          </a>
+        </h3>
+      </div>
+      <span class="channel-card__count">{channel.articles.length} 篇</span>
+    </header>
+    <p class="channel-card__description">{channel.description}</p>
+    <ol class="channel-card__articles" aria-label={`${channel.name}最新文章`}>
+      {
+        channel.articles.map(article => (
+          <li>
+            <time datetime={article.data.pubDatetime.toISOString()}>
+              {dateFormatter.format(article.data.pubDatetime)}
+            </time>
+            <a
+              data-article-link
+              href={getPostUrl(
+                article.id,
+                article.filePath,
+                Astro.currentLocale
+              )}
+            >
+              {article.data.title}
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</article>

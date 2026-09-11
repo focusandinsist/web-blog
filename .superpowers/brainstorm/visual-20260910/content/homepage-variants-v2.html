@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>首页视觉方向原型</title>
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      letter-spacing: 0;
+      transition: background-color .18s ease, color .18s ease;
+    }
+    button, a { font: inherit; }
+    button { color: inherit; }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .variant { display: none; min-height: 100vh; background: var(--bg); color: var(--ink); }
+    .variant.active { display: block; }
+    .shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+    .nav {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand { font: 700 13px ui-monospace, SFMono-Regular, Consolas, monospace; text-transform: uppercase; }
+    .nav-links { display: flex; align-items: center; gap: 24px; font-size: 13px; }
+    .icon-button {
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: var(--panel);
+      cursor: pointer;
+      display: inline-grid;
+      place-items: center;
+    }
+    .icon-button:hover { border-color: var(--accent); }
+    .hero { padding: 58px 0 34px; }
+    .eyebrow { margin: 0 0 14px; color: var(--accent); font: 700 12px ui-monospace, SFMono-Regular, Consolas, monospace; text-transform: uppercase; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 18px; font-size: 58px; line-height: 1.08; letter-spacing: 0; }
+    .lede { max-width: 720px; margin-bottom: 0; color: var(--muted); font-size: 18px; line-height: 1.75; }
+    .meta { color: var(--muted); font: 12px ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 0 9px;
+      border-radius: 4px;
+      background: var(--chip);
+      color: var(--chip-ink);
+      font: 700 11px ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+    .pick {
+      border: 0;
+      border-radius: 5px;
+      background: var(--accent);
+      color: var(--accent-ink);
+      padding: 11px 16px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .pick.selected { outline: 3px solid var(--ink); outline-offset: 3px; }
+    .next-hint { padding: 36px 0 110px; color: var(--muted); font-size: 13px; }
+
+    /* Direction A: editorial masonry */
+    #variant-a {
+      --bg: #0c1112; --ink: #edf1ec; --muted: #9ca8a2; --panel: #141b1d;
+      --line: #2a3538; --accent: #cdeb69; --accent-ink: #10140a;
+      --chip: rgba(12,17,18,.82); --chip-ink: #eaf1eb;
+    }
+    body.light-mode #variant-a {
+      --bg: #f2f2ec; --ink: #111716; --muted: #59645f; --panel: #e4e5de;
+      --line: #c7cbc3; --accent: #d85f35; --accent-ink: #fff;
+      --chip: rgba(245,245,239,.88); --chip-ink: #151a18;
+    }
+    .a-hero { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 60px; align-items: end; }
+    .a-signal { border-left: 1px solid var(--line); padding-left: 22px; }
+    .a-signal strong { display: block; margin-bottom: 7px; font-size: 22px; }
+    .masonry {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      grid-template-rows: 270px 220px;
+      gap: 14px;
+    }
+    .m-card { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+    .m-card:hover img { transform: scale(1.025); }
+    .m-card img { transition: transform .25s ease; }
+    .m-card .overlay { position: absolute; inset: auto 0 0; padding: 48px 18px 17px; background: linear-gradient(transparent, rgba(5,8,8,.88)); }
+    .m-card h2 { margin-bottom: 8px; max-width: 520px; font-size: 26px; line-height: 1.2; }
+    .m-card p { margin-bottom: 0; color: #cbd4cf; font-size: 13px; }
+    .m-card.feature { grid-column: span 7; grid-row: span 2; }
+    .m-card.topic { grid-column: span 5; padding: 22px; background: #cdeb69; color: #16200f; }
+    .m-card.topic .meta { color: #405126; }
+    .m-card.topic h2 { margin-top: 54px; font-size: 31px; }
+    .m-card.note { grid-column: span 3; padding: 18px; }
+    .m-card.note h2 { font-size: 18px; line-height: 1.35; }
+    .m-card.case { grid-column: span 2; padding: 18px; background: #ff9860; color: #24130b; }
+    .m-card.case .meta { color: #6b321a; }
+    .a-actions { display: flex; align-items: center; justify-content: space-between; padding: 22px 0 0; }
+
+    /* Direction B: field notes */
+    #variant-b {
+      --bg: #101514; --ink: #f0eee6; --muted: #99a29c; --panel: #171e1c;
+      --line: #34403a; --accent: #77e0c1; --accent-ink: #0d1a16;
+      --chip: #27342e; --chip-ink: #8ef0cf;
+    }
+    body.light-mode #variant-b {
+      --bg: #edf0eb; --ink: #14201b; --muted: #5e6c65; --panel: #f8f8f3;
+      --line: #c6cdc7; --accent: #006e59; --accent-ink: #fff;
+      --chip: #d6e9e1; --chip-ink: #075445;
+    }
+    .field-layout { display: grid; grid-template-columns: 330px minmax(0, 1fr); min-height: calc(100vh - 72px); }
+    .field-intro { padding: 54px 42px 140px 0; border-right: 1px solid var(--line); }
+    .field-intro h1 { font-size: 46px; }
+    .field-intro .lede { font-size: 15px; }
+    .field-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 34px 0; }
+    .stat { padding: 15px; border: 1px solid var(--line); border-radius: 5px; }
+    .stat b { display: block; margin-bottom: 5px; font-size: 24px; }
+    .field-main { padding: 52px 0 130px 42px; }
+    .field-head { display: flex; justify-content: space-between; align-items: end; gap: 20px; margin-bottom: 30px; }
+    .field-head h2 { margin-bottom: 0; font-size: 28px; }
+    .timeline { border-top: 1px solid var(--line); }
+    .entry { display: grid; grid-template-columns: 92px 1fr 110px; gap: 20px; align-items: start; padding: 24px 0; border-bottom: 1px solid var(--line); }
+    .entry h3 { margin-bottom: 8px; font-size: 21px; }
+    .entry p { margin-bottom: 0; color: var(--muted); font-size: 14px; line-height: 1.65; }
+    .entry-type { text-align: right; }
+    .now-panel { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; margin-top: 26px; }
+    .now-box { min-height: 150px; padding: 20px; border-radius: 5px; background: var(--panel); border: 1px solid var(--line); }
+    .now-box.accent { background: #ff9860; color: #27170f; border-color: #ff9860; }
+    .now-box h3 { margin: 22px 0 8px; font-size: 21px; }
+
+    /* Direction C: technical journal */
+    #variant-c {
+      --bg: #f1f0e9; --ink: #171916; --muted: #66706a; --panel: #faf9f3;
+      --line: #bec4bb; --accent: #c23d2d; --accent-ink: #fff;
+      --chip: #e3dfd2; --chip-ink: #312e27;
+      font-family: Georgia, "Noto Serif SC", "Songti SC", serif;
+    }
+    body.light-mode #variant-c {
+      --bg: #121514; --ink: #f2efe7; --muted: #a4aaa4; --panel: #1c201e;
+      --line: #3a403c; --accent: #f4cf52; --accent-ink: #19170e;
+      --chip: #2b302d; --chip-ink: #f2efe7;
+    }
+    #variant-c .nav-links, #variant-c .brand, #variant-c .meta, #variant-c .eyebrow, #variant-c .chip { font-family: Inter, "Noto Sans SC", sans-serif; }
+    .journal-mast { padding: 34px 0 24px; border-bottom: 4px solid var(--ink); text-align: center; }
+    .journal-mast .issue { display: flex; justify-content: space-between; margin-bottom: 22px; color: var(--muted); font: 11px Inter, sans-serif; }
+    .journal-mast h1 { margin-bottom: 6px; font-size: 64px; font-weight: 500; }
+    .journal-mast p { margin-bottom: 0; color: var(--muted); }
+    .journal-grid { display: grid; grid-template-columns: 1.2fr 1fr .75fr; min-height: 500px; border-bottom: 1px solid var(--line); }
+    .journal-column { padding: 25px; border-right: 1px solid var(--line); }
+    .journal-column:first-child { padding-left: 0; }
+    .journal-column:last-child { padding-right: 0; border-right: 0; }
+    .journal-image { height: 235px; margin-bottom: 20px; overflow: hidden; border-radius: 3px; filter: grayscale(.45); }
+    .journal-grid h2 { margin-bottom: 12px; font-size: 31px; line-height: 1.2; font-weight: 500; }
+    .journal-grid h3 { margin-bottom: 9px; font-size: 20px; line-height: 1.3; }
+    .journal-grid p { color: var(--muted); font-size: 14px; line-height: 1.7; }
+    .journal-list article { padding: 18px 0; border-bottom: 1px solid var(--line); }
+    .journal-list article:first-child { padding-top: 0; }
+    .quote { margin-top: 22px; padding: 18px; background: #e1cf66; color: #242013; font-size: 18px; line-height: 1.55; }
+    body.light-mode .quote { background: #294c43; color: #edf4ef; }
+    .journal-actions { display: flex; justify-content: flex-end; padding-top: 20px; }
+
+    .prototype-switcher {
+      position: fixed;
+      z-index: 50;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 320px;
+      padding: 7px;
+      border: 1px solid #525a56;
+      border-radius: 8px;
+      background: #0b0e0d;
+      color: #f5f6f2;
+      box-shadow: 0 14px 40px rgba(0,0,0,.3);
+      font: 12px Inter, sans-serif;
+    }
+    .prototype-switcher button { height: 36px; border: 0; border-radius: 5px; background: #252a28; color: #fff; cursor: pointer; }
+    .prototype-switcher .arrow { width: 40px; font-size: 18px; }
+    .prototype-switcher .label { flex: 1; text-align: center; font-weight: 700; }
+    .prototype-switcher .select-direction { padding: 0 12px; background: #cdeb69; color: #11160d; }
+
+    @media (max-width: 860px) {
+      .shell { width: min(100% - 24px, 700px); }
+      .nav-links a { display: none; }
+      h1, .field-intro h1, .journal-mast h1 { font-size: 40px; }
+      .a-hero { grid-template-columns: 1fr; gap: 24px; }
+      .a-signal { border-left: 0; border-top: 1px solid var(--line); padding: 18px 0 0; }
+      .masonry { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+      .m-card.feature, .m-card.topic, .m-card.note, .m-card.case { grid-column: auto; min-height: 220px; }
+      .m-card.feature { grid-column: 1 / -1; height: 360px; }
+      .field-layout { grid-template-columns: 1fr; }
+      .field-intro { padding: 42px 0 30px; border-right: 0; border-bottom: 1px solid var(--line); }
+      .field-main { padding: 34px 0 120px; }
+      .entry { grid-template-columns: 78px 1fr; }
+      .entry-type { display: none; }
+      .journal-grid { grid-template-columns: 1fr; }
+      .journal-column, .journal-column:first-child, .journal-column:last-child { padding: 24px 0; border-right: 0; border-bottom: 1px solid var(--line); }
+    }
+    @media (max-width: 560px) {
+      .shell { width: calc(100% - 24px); }
+      .nav { min-height: 62px; }
+      h1, .field-intro h1, .journal-mast h1 { font-size: 34px; }
+      .hero { padding-top: 38px; }
+      .lede { font-size: 16px; }
+      .masonry, .now-panel { grid-template-columns: 1fr; }
+      .m-card.feature { grid-column: auto; height: 310px; }
+      .entry { grid-template-columns: 1fr; gap: 8px; }
+      .prototype-switcher { width: calc(100% - 20px); min-width: 0; bottom: 10px; }
+      .prototype-switcher .label { white-space: normal; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Three throwaway homepage variants, switched with ?variant=A|B|C. -->
+  <main>
+    <section class="variant" id="variant-a" data-variant="A" data-name="Editorial Atlas">
+      <div class="shell">
+        <nav class="nav" aria-label="主导航">
+          <a class="brand" href="#">SYSTEMS / 10Y</a>
+          <div class="nav-links">
+            <a href="#">文章</a><a href="#">专题</a><a href="#">项目</a><a href="#">关于</a>
+            <button class="icon-button" type="button" onclick="toggleTheme()" aria-label="切换明暗主题" title="切换明暗主题">&#9788;</button>
+          </div>
+        </nav>
+        <header class="hero a-hero">
+          <div>
+            <p class="eyebrow">Backend engineer / field-tested systems</p>
+            <h1>系统工程笔记</h1>
+            <p class="lede">记录并发、协议、存储与实时系统中真正困难的问题：约束如何出现，方案如何取舍，以及系统如何在压力下保持可控。</p>
+          </div>
+          <div class="a-signal"><span class="meta">CURRENT THREAD</span><strong>连接治理与背压</strong><span class="meta">系列 03 / 持续更新</span></div>
+        </header>
+        <section class="masonry" aria-label="精选内容">
+          <a class="m-card feature" href="#">
+            <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1400&q=82" alt="数据中心服务器机柜">
+            <div class="overlay"><span class="chip">代表作 / 实时系统</span><h2>十万连接之后：IM 网关如何保持可控</h2><p>容量不是连接数，而是故障发生时仍能解释系统行为。</p></div>
+          </a>
+          <a class="m-card topic" href="#"><span class="meta">TOPIC 02</span><h2>高并发系统</h2><p>锁、队列、背压、调度与可靠性。</p></a>
+          <a class="m-card note" href="#"><span class="meta">最新文章 · 12 分钟</span><h2>epoll 不会替你解决慢消费者</h2><span class="chip">Linux</span></a>
+          <a class="m-card case" href="#"><span class="meta">项目复盘</span><h2>一次消息洪峰中的降级次序</h2></a>
+        </section>
+        <div class="a-actions"><span class="meta">最新更新 2026.09</span><button class="pick" data-choice="A" onclick="toggleSelect(this)">选择此方向</button></div>
+        <div class="next-hint">继续向下：最新文章、五个技术领域、个人经历与联系方式</div>
+      </div>
+    </section>
+
+    <section class="variant" id="variant-b" data-variant="B" data-name="Field Notes">
+      <div class="shell">
+        <nav class="nav" aria-label="主导航">
+          <a class="brand" href="#">ENGINEER'S FIELD NOTES</a>
+          <div class="nav-links"><a href="#">索引</a><a href="#">系列</a><a href="#">项目</a><a href="#">关于</a><button class="icon-button" type="button" onclick="toggleTheme()" aria-label="切换明暗主题" title="切换明暗主题">&#9788;</button></div>
+        </nav>
+        <div class="field-layout">
+          <aside class="field-intro">
+            <p class="eyebrow">十年之后，还在写代码</p>
+            <h1>构建，也记录。</h1>
+            <p class="lede">关于 Linux、并发、IM、数据库和游戏服务端的现场笔记。</p>
+            <div class="field-stats"><div class="stat"><b>10+</b><span class="meta">YEARS SHIPPING</span></div><div class="stat"><b>05</b><span class="meta">CORE TOPICS</span></div></div>
+            <p class="meta">NOW</p><p>正在整理《连接治理》系列，并制作 C++ 内存模型实验。</p>
+            <button class="pick" data-choice="B" onclick="toggleSelect(this)">选择此方向</button>
+          </aside>
+          <section class="field-main">
+            <div class="field-head"><div><p class="eyebrow">CHANGELOG / 近期记录</p><h2>持续实践</h2></div><span class="meta">2026 / Q3</span></div>
+            <div class="timeline">
+              <article class="entry"><time class="meta">SEP 08</time><div><h3>epoll 与连接治理：慢消费者才是边界</h3><p>从可写事件、发送队列到背压策略，拆解一个常被错误归因于网络模型的问题。</p></div><span class="entry-type chip">文章</span></article>
+              <article class="entry"><time class="meta">AUG 24</time><div><h3>消息洪峰下，哪些能力应该先降级？</h3><p>一个匿名化项目复盘：从业务语义推导保护顺序，而不是从监控告警开始救火。</p></div><span class="entry-type chip">案例</span></article>
+              <article class="entry"><time class="meta">AUG 11</time><div><h3>PostgreSQL 热点行的四种解法</h3><p>比较串行化、拆分、乐观并发与异步聚合的真实成本。</p></div><span class="entry-type chip">文章</span></article>
+            </div>
+            <div class="now-panel"><div class="now-box"><span class="meta">实验台</span><h3>C++ 内存模型可视化</h3><p class="meta">代码 + 图解 / 进行中</p></div><div class="now-box accent"><span class="meta">专题入口</span><h3>实时系统</h3><p>协议、在线状态、投递与一致性。</p></div></div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="variant" id="variant-c" data-variant="C" data-name="Technical Journal">
+      <div class="shell">
+        <nav class="nav" aria-label="主导航">
+          <a class="brand" href="#">THE SYSTEMS JOURNAL</a>
+          <div class="nav-links"><a href="#">文章</a><a href="#">专题</a><a href="#">项目</a><a href="#">关于</a><button class="icon-button" type="button" onclick="toggleTheme()" aria-label="切换明暗主题" title="切换明暗主题">&#9788;</button></div>
+        </nav>
+        <header class="journal-mast">
+          <div class="issue"><span>VOL. 01 / 2026</span><span>中文技术出版物</span><span>新加坡</span></div>
+          <h1>系统工程笔记</h1>
+          <p>从 Linux 内核到实时世界，记录判断、约束与取舍。</p>
+        </header>
+        <section class="journal-grid">
+          <article class="journal-column">
+            <div class="journal-image"><img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=82" alt="计算机电路板特写"></div>
+            <span class="eyebrow">本期封面 / 并发工程</span>
+            <h2>高并发不是更快，而是在压力下保持秩序</h2>
+            <p>从排队论、背压和尾延迟出发，重新定义系统容量。</p>
+          </article>
+          <div class="journal-column journal-list">
+            <article><span class="meta">实时系统 · 14 分钟</span><h3>在线状态为什么总是不准确</h3><p>状态、事件与观察时间之间的缝隙。</p></article>
+            <article><span class="meta">数据系统 · 11 分钟</span><h3>索引不是免费的查询加速器</h3><p>写放大、缓存压力和真实工作集。</p></article>
+            <article><span class="meta">游戏技术 · 系列</span><h3>服务器帧循环的时间观</h3></article>
+          </div>
+          <aside class="journal-column">
+            <span class="eyebrow">编者按</span>
+            <h3>经验的价值，在于能解释失败。</h3>
+            <p>这里不收集最佳实践。每篇内容都从具体约束开始，并明确说明没有选择什么。</p>
+            <div class="quote">“先定义系统必须守住什么，再谈性能。”</div>
+            <div class="journal-actions"><button class="pick" data-choice="C" onclick="toggleSelect(this)">选择此方向</button></div>
+          </aside>
+        </section>
+        <div class="next-hint">下一版：系统编程 / 并发工程 / 实时系统 / 数据系统 / 游戏技术</div>
+      </div>
+    </section>
+  </main>
+
+  <div class="prototype-switcher" aria-label="原型方向切换器">
+    <button class="arrow" type="button" onclick="stepVariant(-1)" aria-label="上一个方向" title="上一个方向">&#8592;</button>
+    <div class="label" id="variant-label">A / Editorial Atlas</div>
+    <button class="arrow" type="button" onclick="stepVariant(1)" aria-label="下一个方向" title="下一个方向">&#8594;</button>
+    <button class="select-direction" id="select-current" type="button" onclick="selectCurrent()">选定</button>
+  </div>
+
+  <script>
+    const variants = ['A', 'B', 'C'];
+    const names = { A: 'Editorial Atlas', B: 'Field Notes', C: 'Technical Journal' };
+
+    function currentVariant() {
+      const value = new URLSearchParams(location.search).get('variant');
+      return variants.includes(value) ? value : 'A';
+    }
+
+    function showVariant(value) {
+      document.querySelectorAll('.variant').forEach((node) => node.classList.toggle('active', node.dataset.variant === value));
+      document.getElementById('variant-label').textContent = value + ' / ' + names[value];
+      const url = new URL(location.href);
+      url.searchParams.set('variant', value);
+      history.replaceState({}, '', url);
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+
+    function stepVariant(delta) {
+      const index = variants.indexOf(currentVariant());
+      showVariant(variants[(index + delta + variants.length) % variants.length]);
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle('light-mode');
+    }
+
+    function selectCurrent() {
+      const value = currentVariant();
+      const target = document.querySelector('[data-variant="' + value + '"] .pick');
+      if (target) target.click();
+    }
+
+    document.addEventListener('keydown', (event) => {
+      const tag = document.activeElement && document.activeElement.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement?.isContentEditable) return;
+      if (event.key === 'ArrowLeft') stepVariant(-1);
+      if (event.key === 'ArrowRight') stepVariant(1);
+    });
+
+    showVariant(currentVariant());
+  </script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+---
+import type { MarkdownHeading } from "astro";
+import type { TopicContext } from "@/utils/content";
+import { TOPICS } from "@/data/taxonomy";
+import { getPostUrl } from "@/utils/getPostPaths";
+
+interface Props {
+  headings: MarkdownHeading[];
+  topicContext: TopicContext;
+}
+
+const { headings, topicContext } = Astro.props;
+const outline = headings.filter(
+  heading =>
+    (heading.depth === 2 || heading.depth === 3) &&
+    heading.slug !== "footnote-label"
+);
+const topic = TOPICS.find(item => item.id === topicContext.topic);
+---
+
+<aside class="article-context" data-context-rail>
+  <nav class="article-outline" aria-label="本文目录">
+    <h2>本文目录</h2>
+    <ol>
+      {
+        outline.map((heading, index) => (
+          <li data-depth={heading.depth}>
+            <a
+              href={`#${heading.slug}`}
+              data-outline-link
+              aria-current={index === 0 ? "location" : undefined}
+            >
+              {heading.text}
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </nav>
+
+  <nav class="article-topic-context" aria-label="同专题文章">
+    <h2>{topic?.name ?? topicContext.topic}</h2>
+    <ol>
+      {
+        topicContext.articles.map(({ article, isCurrent }) => (
+          <li>
+            <a
+              href={getPostUrl(
+                article.id,
+                article.filePath,
+                Astro.currentLocale
+              )}
+              aria-current={isCurrent ? "page" : undefined}
+            >
+              {article.data.title}
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+    <a
+      class="article-context__all"
+      href={topic?.href ?? `/topics/${topicContext.topic}/`}
+    >
+      查看完整专题
+    </a>
+  </nav>
+</aside>
+
+<script>
+  function initializeOutlineObserver() {
+    const links = Array.from(
+      document.querySelectorAll<HTMLAnchorElement>("[data-outline-link]")
+    );
+    if (links.length === 0) return;
+
+    const linksById = new Map(
+      links.map(link => [decodeURIComponent(link.hash.slice(1)), link])
+    );
+    const headings = [...linksById.keys()]
+      .map(id => document.getElementById(id))
+      .filter((heading): heading is HTMLElement => Boolean(heading));
+
+    const setCurrent = (id: string) => {
+      for (const [headingId, link] of linksById) {
+        if (headingId === id) link.setAttribute("aria-current", "location");
+        else link.removeAttribute("aria-current");
+      }
+      document.dispatchEvent(
+        new CustomEvent("article-heading-change", { detail: id })
+      );
+    };
+
+    const observer = new IntersectionObserver(
+      entries => {
+        const visible = entries.find(entry => entry.isIntersecting);
+        if (visible?.target.id) setCurrent(visible.target.id);
+      },
+      { rootMargin: "0px 0px -75% 0px" }
+    );
+
+    headings.forEach(heading => observer.observe(heading));
+  }
+
+  document.addEventListener("astro:page-load", initializeOutlineObserver);
+  initializeOutlineObserver();
+</script>

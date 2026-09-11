@@ -1,0 +1,29 @@
+---
+import { Image } from "astro:assets";
+import IconArrowNarrowUp from "@/assets/icons/IconArrowNarrowUp.svg";
+import coverImage from "@/assets/images/home-cover.webp";
+---
+
+<section id="cover" class="cover-hero" aria-labelledby="cover-title">
+  <Image
+    class="cover-hero__image"
+    src={coverImage}
+    alt="深蓝灰色纯色宽幅背景"
+    widths={[640, 960, 1440, 1920]}
+    sizes="100vw"
+    quality={55}
+    loading="eager"
+  />
+  <div class="cover-hero__shade" aria-hidden="true"></div>
+  <div class="cover-hero__content">
+    <p class="cover-hero__eyebrow">工程实践 / 长期记录</p>
+    <h1 id="cover-title">系统工程笔记</h1>
+    <p class="cover-hero__description">
+      记录系统、生活与投资中的判断、证据和复盘。
+    </p>
+    <a class="cover-hero__continue" href="#content-lobby">
+      浏览最新内容
+      <IconArrowNarrowUp aria-hidden="true" />
+    </a>
+  </div>
+</section>

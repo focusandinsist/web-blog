@@ -1,0 +1,60 @@
+---
+import type { PublishedArticleEntry } from "@/utils/content";
+import { getPostUrl } from "@/utils/getPostPaths";
+import { TOPICS } from "@/data/taxonomy";
+
+interface Props {
+  articles: PublishedArticleEntry[];
+  emptyMessage?: string;
+}
+
+const { articles, emptyMessage = "暂无文章。" } = Astro.props;
+const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+const topicNames = new Map(TOPICS.map(topic => [topic.id, topic.name]));
+---
+
+{
+  articles.length > 0 ? (
+    <ol class="directory-article-list">
+      {articles.map(article => (
+        <li
+          data-article-item
+          data-channel={article.data.channel}
+          data-topics={article.data.topics.join(" ")}
+        >
+          <div class="directory-article-list__meta">
+            <time datetime={article.data.pubDatetime.toISOString()}>
+              {dateFormatter.format(article.data.pubDatetime)}
+            </time>
+            <span>
+              {article.data.kind === "case-study" ? "项目复盘" : "文章"}
+            </span>
+          </div>
+          <h2>
+            <a
+              href={getPostUrl(
+                article.id,
+                article.filePath,
+                Astro.currentLocale
+              )}
+            >
+              {article.data.title}
+            </a>
+          </h2>
+          <p>{article.data.description}</p>
+          <div class="directory-article-list__topics">
+            {article.data.topics.map(topic => (
+              <a href={`/topics/${topic}/`}>{topicNames.get(topic) ?? topic}</a>
+            ))}
+          </div>
+        </li>
+      ))}
+    </ol>
+  ) : (
+    <p class="directory-empty">{emptyMessage}</p>
+  )
+}

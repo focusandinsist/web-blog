@@ -1,0 +1,112 @@
+---
+import IconMoon from "@/assets/icons/IconMoon.svg";
+import IconSunHigh from "@/assets/icons/IconSunHigh.svg";
+---
+
+<div class="theme-control">
+  <button
+    type="button"
+    class="theme-trigger"
+    aria-haspopup="menu"
+    aria-expanded="false"
+    aria-label="主题设置"
+  >
+    <IconSunHigh class="theme-icon theme-icon-light" aria-hidden="true" />
+    <IconMoon class="theme-icon theme-icon-dark" aria-hidden="true" />
+  </button>
+  <div class="theme-menu" role="menu" hidden>
+    <button
+      type="button"
+      role="menuitemradio"
+      aria-checked="false"
+      data-theme-choice="light"
+      ><IconSunHigh aria-hidden="true" /><span>亮色</span></button
+    >
+    <button
+      type="button"
+      role="menuitemradio"
+      aria-checked="false"
+      data-theme-choice="dark"
+      ><IconMoon aria-hidden="true" /><span>暗色</span></button
+    >
+    <button
+      type="button"
+      role="menuitemradio"
+      aria-checked="false"
+      data-theme-choice="system"
+      ><span class="system-icon" aria-hidden="true"></span><span>跟随系统</span
+      ></button
+    >
+  </div>
+</div>
+<script>
+  const setupThemeToggle = () => {
+    document
+      .querySelectorAll<HTMLElement>(".theme-control")
+      .forEach(control => {
+        const trigger =
+          control.querySelector<HTMLButtonElement>(".theme-trigger");
+        const menu = control.querySelector<HTMLElement>(".theme-menu");
+        if (!trigger || !menu || trigger.dataset.ready) return;
+        trigger.dataset.ready = "true";
+        trigger.addEventListener("click", () => {
+          const open = trigger.getAttribute("aria-expanded") === "true";
+          trigger.setAttribute("aria-expanded", String(!open));
+          menu.hidden = open;
+          if (!open) {
+            const selected = menu.querySelector<HTMLButtonElement>(
+              '[aria-checked="true"]'
+            );
+            (
+              selected ?? menu.querySelector<HTMLButtonElement>("button")
+            )?.focus();
+          }
+        });
+        menu
+          .querySelectorAll<HTMLButtonElement>("[data-theme-choice]")
+          .forEach(button => {
+            button.addEventListener("click", () => {
+              window.dispatchEvent(
+                new CustomEvent("blog-theme-change", {
+                  detail: button.dataset.themeChoice,
+                })
+              );
+              trigger.setAttribute("aria-expanded", "false");
+              menu.hidden = true;
+              trigger.focus();
+            });
+          });
+        menu.addEventListener("keydown", event => {
+          const choices = [
+            ...menu.querySelectorAll<HTMLButtonElement>("button"),
+          ];
+          const current = choices.indexOf(
+            document.activeElement as HTMLButtonElement
+          );
+          if (event.key === "Escape") {
+            event.preventDefault();
+            menu.hidden = true;
+            trigger.setAttribute("aria-expanded", "false");
+            trigger.focus();
+            return;
+          }
+          const next =
+            event.key === "ArrowDown"
+              ? (current + 1) % choices.length
+              : event.key === "ArrowUp"
+                ? (current - 1 + choices.length) % choices.length
+                : event.key === "Home"
+                  ? 0
+                  : event.key === "End"
+                    ? choices.length - 1
+                    : -1;
+          if (next >= 0) {
+            event.preventDefault();
+            choices[next]?.focus();
+          }
+        });
+      });
+  };
+  setupThemeToggle();
+  document.addEventListener("astro:after-swap", setupThemeToggle);
+</script>

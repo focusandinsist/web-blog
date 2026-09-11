@@ -1,0 +1,66 @@
+<style>
+  :root { --ink:#10151a; --paper:#f2f1eb; --muted:#8b938f; --cyan:#7ee7d2; --lime:#d5f36a; --orange:#ff9d5c; --line:rgba(255,255,255,.13); }
+  body { background:#0c1114 !important; }
+  .stage { color:#e8eee9; font-family: ui-sans-serif, system-ui, sans-serif; }
+  .stage h2 { margin-bottom:8px; letter-spacing:.02em; }
+  .stage > .subtitle { color:#94a49d; margin-bottom:26px; }
+  .choices { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
+  .choice { background:#141b1f; border:1px solid #273237; border-radius:8px; overflow:hidden; cursor:pointer; transition:.2s ease; }
+  .choice:hover { transform:translateY(-3px); border-color:#7ee7d2; }
+  .choice.selected { outline:2px solid #d5f36a; outline-offset:3px; }
+  .browser { height:280px; background:#10171a; border-bottom:1px solid #273237; }
+  .bar { height:28px; display:flex; align-items:center; gap:5px; padding:0 12px; background:#1b2529; }
+  .dot { width:6px; height:6px; border-radius:50%; background:#6e7b78; }
+  .url { height:7px; flex:1; max-width:130px; margin-left:8px; border-radius:5px; background:#2c3a3d; }
+  .mini { padding:18px; }
+  .mini .nav { display:flex; justify-content:space-between; font-size:9px; color:#a9b9b2; margin-bottom:25px; }
+  .mini .brand { color:#d5f36a; letter-spacing:.08em; }
+  .mini h4 { margin:0; font-size:22px; line-height:1.05; letter-spacing:-.04em; }
+  .mini p { font-size:9px; color:#9aa9a2; line-height:1.5; max-width:180px; }
+  .mini .rule { height:1px; background:#2a373a; margin:18px 0; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .tile { padding:10px; min-height:50px; border:1px solid #293639; border-radius:5px; }
+  .tile strong { display:block; font-size:10px; color:#e8eee9; }
+  .tile span { font-size:8px; color:#75837e; }
+  .signal { color:#7ee7d2; }
+  .paper { background:#f2f1eb; color:#10151a; }
+  .paper .bar { background:#deded6; }
+  .paper .url { background:#c7c9c0; }
+  .paper .mini .nav { color:#56605c; }
+  .paper .mini .brand { color:#d66734; }
+  .paper .mini p { color:#66706a; }
+  .paper .mini .rule { background:#cbd0c8; }
+  .paper .tile { border-color:#c8ccc4; }
+  .paper .tile strong { color:#10151a; }
+  .paper .tile span { color:#68726c; }
+  .console .mini { background:linear-gradient(135deg,#10171a,#192629); height:100%; box-sizing:border-box; }
+  .console .hero-line { display:flex; justify-content:space-between; align-items:flex-end; }
+  .console .metric { text-align:right; font-size:9px; color:#7ee7d2; }
+  .console .metric b { display:block; font-size:24px; color:#e8eee9; }
+  .console .timeline { margin-top:21px; border-left:1px solid #53635d; padding-left:12px; display:grid; gap:10px; }
+  .console .event { font-size:9px; color:#a8b8b0; position:relative; }
+  .console .event:before { content:""; position:absolute; left:-16px; top:2px; width:6px; height:6px; border-radius:50%; background:#ff9d5c; }
+  .choice-body { padding:15px 16px 17px; }
+  .choice-body h3 { margin:0 0 7px; font-size:16px; }
+  .choice-body p { margin:0; color:#93a29b; font-size:12px; line-height:1.5; }
+  .tag { display:inline-block; margin-top:13px; color:#7ee7d2; font:10px ui-monospace, SFMono-Regular, Menlo, monospace; }
+  @media (max-width:800px){ .choices{grid-template-columns:1fr;} .browser{height:240px;} }
+</style>
+<div class="stage">
+  <h2>哪种首页更像你的个人技术基地？</h2>
+  <p class="subtitle">点击一个方向。内容会保持真实：系统、并发、IM、游戏与十年工程经验。</p>
+  <div class="choices">
+    <div class="choice" data-choice="lab" onclick="toggleSelect(this)">
+      <div class="browser"><div class="bar"><i class="dot"></i><i class="dot"></i><i class="dot"></i><i class="url"></i></div><div class="mini"><div class="nav"><span class="brand">ZHOU / SYSTEMS</span><span>WRITING &nbsp; LABS &nbsp; ABOUT</span></div><h4>把复杂系统<br>讲清楚。</h4><p>关于并发、协议、内存和那些真正上线过的系统。</p><div class="rule"></div><div class="grid"><div class="tile"><strong class="signal">01 / CONCURRENCY</strong><span>锁、队列与背压</span></div><div class="tile"><strong>02 / IM SYSTEMS</strong><span>在线状态与一致性</span></div></div></div></div>
+      <div class="choice-body"><h3>System Lab</h3><p>深色、安静、聚焦内容。像一个长期维护的工程实验室。</p><span class="tag">阅读优先 · 低噪声</span></div>
+    </div>
+    <div class="choice" data-choice="hybrid" onclick="toggleSelect(this)">
+      <div class="browser"><div class="bar"><i class="dot"></i><i class="dot"></i><i class="dot"></i><i class="url"></i></div><div class="mini"><div class="nav"><span class="brand">/ ENGINEER'S FIELD NOTES</span><span>INDEX &nbsp; SERIES &nbsp; NOW</span></div><div class="hero-line"><h4>十年之后<br>还在写代码。</h4><div class="metric"><b>10+</b> YEARS SHIPPING</div></div><div class="timeline"><div class="event">正在写：epoll 与连接治理</div><div class="event">最近完成：IM 高峰期降级策略</div><div class="event">实验台：C++ 内存模型可视化</div></div></div></div>
+      <div class="choice-body"><h3>Field Notes</h3><p>实验室的秩序 + 个人操作台的时间感，最能表达你的持续实践。</p><span class="tag">推荐 · 内容与人格并重</span></div>
+    </div>
+    <div class="choice" data-choice="journal" onclick="toggleSelect(this)">
+      <div class="browser paper"><div class="bar"><i class="dot"></i><i class="dot"></i><i class="dot"></i><i class="url"></i></div><div class="mini"><div class="nav"><span class="brand">FIELD JOURNAL</span><span>ESSAYS &nbsp; ARCHIVE</span></div><h4>工程，是一种<br>观察世界的方式。</h4><p>从 Linux 内核到游戏循环，记录问题、判断与取舍。</p><div class="rule"></div><div class="grid"><div class="tile"><strong>一篇新文章</strong><span>为什么高并发系统会变慢</span></div><div class="tile"><strong>专题索引</strong><span>从 socket 到在线服务</span></div></div></div></div>
+      <div class="choice-body"><h3>Technical Journal</h3><p>更像一本技术杂志，亲和、耐读，但工程识别度相对柔和。</p><span class="tag" style="color:#ff9d5c">编辑感 · 易分享</span></div>
+    </div>
+  </div>
+</div>

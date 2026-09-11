@@ -1,0 +1,52 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import { getChannelDirectory, getPublishedArticles } from "@/utils/content";
+import "@/styles/directory.css";
+
+const entries = await getCollection("posts");
+const channels = getChannelDirectory(getPublishedArticles(entries, new Date()));
+---
+
+<Layout title="专题 | 系统工程笔记" description="按长期问题域整理的全部专题。">
+  <Header />
+  <main id="main-content" class="directory-page">
+    <header class="directory-page__header">
+      <p class="directory-page__eyebrow">问题索引</p>
+      <h1>专题</h1>
+      <p class="directory-page__intro">
+        专题是持续增长的问题域，不等同于按顺序阅读的系列。
+      </p>
+    </header>
+
+    {
+      channels.map(channel => (
+        <section
+          class="directory-channel-section"
+          aria-labelledby={`topics-${channel.id}`}
+        >
+          <h2 id={`topics-${channel.id}`}>{channel.name}</h2>
+          <div class="directory-index-grid">
+            {channel.topics.map(topic => (
+              <article
+                class="directory-index-card"
+                data-accent={channel.accent}
+              >
+                <h3>
+                  <a href={topic.href}>{topic.name}</a>
+                </h3>
+                <p>{topic.description}</p>
+                <span class="directory-index-card__count">
+                  {topic.articles.length} 篇文章
+                </span>
+              </article>
+            ))}
+          </div>
+        </section>
+      ))
+    }
+  </main>
+  <Footer />
+</Layout>
