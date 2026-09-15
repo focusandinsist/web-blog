@@ -11,7 +11,13 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
+      testIgnore: /no-js\.spec\.ts/,
       use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      name: "no-js",
+      testMatch: /no-js\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"], javaScriptEnabled: false },
     },
   ],
   webServer: {

@@ -29,6 +29,11 @@ test.describe("桌面文章阅读", () => {
     await expect(metadata).toContainText("分钟阅读");
     await expect(metadata).toContainText("完整");
     await expect(page.locator("#article")).toContainText("一次延迟尖峰");
+    await expect(page.getByRole("img", { name: "技术频道头图" })).toBeVisible();
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+      "content",
+      /channel-technology/
+    );
 
     const rail = page.locator("[data-context-rail]");
     await expect(rail).toBeVisible();

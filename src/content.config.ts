@@ -42,11 +42,8 @@ const posts = defineCollection({
             })
           )
           .default([]),
-        featured: z.boolean().optional(),
         ogImage: image().or(z.string()).optional(),
         canonicalURL: z.string().optional(),
-        hideEditPost: z.boolean().optional(),
-        timezone: z.string().optional(),
       })
       .refine(data => !data.heroImage || data.heroAlt, {
         message: "设置 heroImage 时必须提供 heroAlt",

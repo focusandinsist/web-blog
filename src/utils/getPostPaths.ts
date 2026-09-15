@@ -41,7 +41,7 @@ export function getPostSlug(id: string, filePath: string | undefined): string {
  * Returns a fully navigable URL for use in `<a href>` and RSS links.
  * Applies both locale routing and the configured Astro base via
  * `getRelativeLocaleUrl`.
- * e.g. `/posts/my-post` or `/en/posts/my-post`
+ * e.g. `/articles/my-post` or `/en/articles/my-post`
  */
 export function getPostUrl(
   id: string,

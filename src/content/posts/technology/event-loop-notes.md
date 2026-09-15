@@ -7,6 +7,9 @@ channel: technology
 topics: [concurrency-engineering]
 tags: [TypeScript, performance]
 status: complete
+heroImage: ../../../assets/images/channel-technology.webp
+heroAlt: "技术频道头图"
+ogImage: ../../../assets/images/channel-technology.webp
 series:
   id: event-loop-diagnostics
   order: 2

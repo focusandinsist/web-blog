@@ -9,6 +9,19 @@
   margin-bottom: 2rem;
 }
 
+.article-hero {
+  max-width: 76rem;
+  margin: 0 0 2.5rem;
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+
+.article-hero img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 .article-trail ol {
   display: flex;
   flex-wrap: wrap;

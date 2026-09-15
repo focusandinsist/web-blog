@@ -14,7 +14,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "check": "astro check && eslint . && prettier --check .",
+    "article:new": "node scripts/new-article.mjs",
+    "content:check": "astro sync && tsx scripts/check-content.ts",
+    "check": "pnpm content:check && astro check && eslint . && prettier --check .",
     "format:check": "prettier --check .",
     "format": "prettier --write .",
     "lint": "eslint ."
@@ -50,10 +52,12 @@
     "@typescript-eslint/parser": "^8.62.0",
     "eslint": "^10.6.0",
     "eslint-plugin-astro": "^2.1.1",
+    "gray-matter": "^4.0.3",
     "pagefind": "^1.5.2",
     "prettier": "3.9.3",
     "prettier-plugin-astro": "0.14.1",
     "prettier-plugin-tailwindcss": "^0.8.0",
+    "tsx": "^4.23.13",
     "typescript": "^6.0.3",
     "vitest": "^5.0.0"
   }

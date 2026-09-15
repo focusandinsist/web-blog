@@ -54,6 +54,22 @@ function articleTimestamp(entry: ArticleEntry): number {
   return (entry.data.modDatetime ?? entry.data.pubDatetime).getTime();
 }
 
+function compareHomeArticles(
+  left: PublishedArticleEntry,
+  right: PublishedArticleEntry
+): number {
+  const leftRank = left.data.featuredRank;
+  const rightRank = right.data.featuredRank;
+
+  if (leftRank !== undefined || rightRank !== undefined) {
+    if (leftRank === undefined) return 1;
+    if (rightRank === undefined) return -1;
+    if (leftRank !== rightRank) return leftRank - rightRank;
+  }
+
+  return articleTimestamp(right) - articleTimestamp(left);
+}
+
 function getArticleOrThrow(
   entries: readonly PublishedArticleEntry[],
   slug: string
@@ -99,7 +115,9 @@ export function getHomeChannels(
 ): HomeChannel[] {
   return CHANNELS.map(channel => ({
     ...channel,
-    articles: getChannelArticles(entries, channel.id).slice(0, limit),
+    articles: getChannelArticles(entries, channel.id)
+      .toSorted(compareHomeArticles)
+      .slice(0, limit),
   }));
 }
 

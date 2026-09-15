@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { getUniqueTags } from "@/utils/getUniqueTags";
 import {
   getChannelArticles,
   getChannelDirectory,
@@ -45,6 +46,29 @@ function published(entries: ArticleEntry[]) {
 }
 
 describe("getPublishedArticles", () => {
+  it("applies publication eligibility and update ordering as one rule", () => {
+    const entries = [
+      article("published", {
+        pubDatetime: new Date("2026-09-09T00:00:00.000Z"),
+      }),
+      article("draft", { draft: true }),
+      article("future", {
+        pubDatetime: new Date("2026-09-10T12:00:01.000Z"),
+      }),
+      article("recently-updated", {
+        pubDatetime: new Date("2026-08-01T00:00:00.000Z"),
+        modDatetime: new Date("2026-09-10T11:00:00.000Z"),
+      }),
+      article("available-now", { pubDatetime: new Date(NOW) }),
+    ];
+
+    expect(getPublishedArticles(entries, NOW).map(entry => entry.id)).toEqual([
+      "available-now",
+      "recently-updated",
+      "published",
+    ]);
+  });
+
   it("excludes drafts", () => {
     const entries = [article("published"), article("draft", { draft: true })];
 
@@ -141,6 +165,36 @@ describe("content groupings", () => {
       "technology-1",
       "technology-2",
     ]);
+  });
+
+  it("ranks featured articles before unranked articles within each channel", () => {
+    const entries = published([
+      article("unranked-new", {
+        channel: "technology",
+        pubDatetime: new Date("2026-09-09T00:00:00.000Z"),
+      }),
+      article("ranked-late", {
+        channel: "technology",
+        featuredRank: 2,
+        pubDatetime: new Date("2026-09-01T00:00:00.000Z"),
+      }),
+      article("ranked-first", {
+        channel: "technology",
+        featuredRank: 1,
+        pubDatetime: new Date("2026-08-01T00:00:00.000Z"),
+      }),
+      article("unranked-old", {
+        channel: "technology",
+        pubDatetime: new Date("2026-08-01T00:00:00.000Z"),
+        modDatetime: new Date("2026-09-10T00:00:00.000Z"),
+      }),
+    ]);
+
+    expect(
+      getHomeChannels(entries, 4)
+        .find(channel => channel.id === "technology")
+        ?.articles.map(entry => entry.id)
+    ).toEqual(["ranked-first", "ranked-late", "unranked-old", "unranked-new"]);
   });
 
   it("builds channel and topic directory models without page-level filtering", () => {
@@ -295,5 +349,7 @@ describe("published-entry contract", () => {
 
     // @ts-expect-error Raw entries must pass through getPublishedArticles first.
     getChannelArticles(rawEntries, "technology");
+    // @ts-expect-error Tags must use the same published collection.
+    getUniqueTags(rawEntries);
   });
 });

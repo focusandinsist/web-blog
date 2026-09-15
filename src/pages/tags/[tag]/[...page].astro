@@ -8,19 +8,20 @@ import Breadcrumb from "@/components/Breadcrumb.astro";
 import Card from "@/components/Card.astro";
 import Footer from "@/components/Footer.astro";
 import Pagination from "@/components/Pagination.astro";
+import { getPublishedArticles } from "@/utils/content";
 import { getUniqueTags } from "@/utils/getUniqueTags";
-import { getSortedPosts } from "@/utils/getSortedPosts";
 import { slugifyAll } from "@/utils/slugify";
 import { useTranslations } from "@/i18n";
 import config from "@/config";
 
 export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
-  const posts = await getCollection("posts", ({ data }) => !data.draft);
+  const entries = await getCollection("posts");
+  const posts = getPublishedArticles(entries, new Date());
   const tags = getUniqueTags(posts);
 
   return tags.flatMap(({ tag, tagName }) => {
-    const tagPosts = getSortedPosts(
-      posts.filter(({ data }) => slugifyAll(data.tags).includes(tag))
+    const tagPosts = posts.filter(({ data }) =>
+      slugifyAll(data.tags).includes(tag)
     );
 
     return paginate(tagPosts, {
