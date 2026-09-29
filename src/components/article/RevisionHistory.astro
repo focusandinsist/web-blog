@@ -1,8 +1,8 @@
 ---
-import type { PublishedArticleEntry } from "@/utils/content";
+import type { ArticleRevision } from "@/data/article";
 
 interface Props {
-  revisions: PublishedArticleEntry["data"]["revisions"];
+  revisions: ArticleRevision[];
 }
 
 const { revisions } = Astro.props;

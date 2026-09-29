@@ -6,6 +6,7 @@
 !/public
 !/.github
 !/tests
+!/test
 !tsconfig.json
 !astro.config.ts
 !vitest.config.ts

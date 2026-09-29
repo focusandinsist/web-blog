@@ -3,16 +3,17 @@ import type { MarkdownHeading } from "astro";
 import type { TopicContext } from "@/utils/content";
 import IconMenuDeep from "@/assets/icons/IconMenuDeep.svg";
 import IconX from "@/assets/icons/IconX.svg";
-import { TOPICS } from "@/data/taxonomy";
+import type { TopicDefinition } from "@/data/taxonomy";
 import { getPostUrl } from "@/utils/getPostPaths";
 
 interface Props {
   title: string;
   headings: MarkdownHeading[];
   topicContext: TopicContext;
+  topics: TopicDefinition[];
 }
 
-const { title, headings, topicContext } = Astro.props;
+const { title, headings, topicContext, topics } = Astro.props;
 const outline = headings.filter(
   heading =>
     (heading.depth === 2 || heading.depth === 3) &&
@@ -24,7 +25,7 @@ const outlineItems = outline.map(heading => {
   return { ...heading, parentSlug };
 });
 const initialBranch = outlineItems.find(heading => heading.depth === 2)?.slug;
-const topic = TOPICS.find(item => item.id === topicContext.topic);
+const topic = topics.find(item => item.id === topicContext.topic);
 ---
 
 <section
@@ -148,14 +149,10 @@ const topic = TOPICS.find(item => item.id === topicContext.topic);
           topicContext.articles.map(({ article, isCurrent }) => (
             <li>
               <a
-                href={getPostUrl(
-                  article.id,
-                  article.filePath,
-                  Astro.currentLocale
-                )}
+                href={getPostUrl(article.id, Astro.currentLocale)}
                 aria-current={isCurrent ? "page" : undefined}
               >
-                {article.data.title}
+                {article.title}
               </a>
             </li>
           ))

@@ -74,18 +74,14 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
       {
         channel.articles.map(article => (
           <li>
-            <time datetime={article.data.pubDatetime.toISOString()}>
-              {dateFormatter.format(article.data.pubDatetime)}
+            <time datetime={article.pubDatetime.toISOString()}>
+              {dateFormatter.format(article.pubDatetime)}
             </time>
             <a
               data-article-link
-              href={getPostUrl(
-                article.id,
-                article.filePath,
-                Astro.currentLocale
-              )}
+              href={getPostUrl(article.id, Astro.currentLocale)}
             >
-              {article.data.title}
+              {article.title}
             </a>
           </li>
         ))

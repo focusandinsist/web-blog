@@ -1,5 +1,4 @@
 ---
-import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Breadcrumb from "@/components/Breadcrumb.astro";
@@ -10,9 +9,10 @@ import { getPublishedArticles } from "@/utils/content";
 import { getUniqueTags } from "@/utils/getUniqueTags";
 import { useTranslations } from "@/i18n";
 import config from "@/config";
+import { getPublicationSnapshot } from "@/data/djangoArticleSource";
 
-const posts = await getCollection("posts");
-const tags = getUniqueTags(getPublishedArticles(posts, new Date()));
+const { articles } = await getPublicationSnapshot();
+const tags = getUniqueTags(getPublishedArticles(articles, new Date()));
 
 const locale = Astro.currentLocale ?? config.site.lang;
 const t = useTranslations(locale);

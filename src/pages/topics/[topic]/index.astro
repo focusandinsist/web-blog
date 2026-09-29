@@ -1,6 +1,5 @@
 ---
 import type { GetStaticPaths } from "astro";
-import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
@@ -11,23 +10,30 @@ import {
   type TopicDirectoryItem,
 } from "@/utils/content";
 import { getPostUrl } from "@/utils/getPostPaths";
+import { getPublicationSnapshot } from "@/data/djangoArticleSource";
 import "@/styles/directory.css";
 
 export const getStaticPaths = (async () => {
-  const entries = await getCollection("posts");
-  const topics = getTopicDirectory(getPublishedArticles(entries, new Date()));
+  const snapshot = await getPublicationSnapshot();
+  const topics = getTopicDirectory(
+    getPublishedArticles(snapshot.articles, new Date()),
+    snapshot.taxonomy.topics
+  );
 
   return topics.map(topic => ({
     params: { topic: topic.id },
-    props: { topic },
+    props: { topic, topics: snapshot.taxonomy.topics },
   }));
 }) satisfies GetStaticPaths;
 
 interface Props {
   topic: TopicDirectoryItem;
+  topics: Awaited<
+    ReturnType<typeof getPublicationSnapshot>
+  >["taxonomy"]["topics"];
 }
 
-const { topic } = Astro.props;
+const { topic, topics } = Astro.props;
 ---
 
 <Layout title={`${topic.name} | 系统工程笔记`} description={topic.description}>
@@ -47,11 +53,7 @@ const { topic } = Astro.props;
             {topic.series.map(series => (
               <li>
                 <a
-                  href={getPostUrl(
-                    series.articles[0].id,
-                    series.articles[0].filePath,
-                    Astro.currentLocale
-                  )}
+                  href={getPostUrl(series.articles[0].id, Astro.currentLocale)}
                 >
                   {series.id}（{series.articles.length} 篇）
                 </a>
@@ -64,6 +66,7 @@ const { topic } = Astro.props;
 
     <ArticleDirectoryList
       articles={topic.articles}
+      {topics}
       emptyMessage="这个专题暂时没有文章。"
     />
   </main>

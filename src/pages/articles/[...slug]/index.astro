@@ -1,6 +1,10 @@
 ---
-import { getCollection, render, type CollectionEntry } from "astro:content";
+import type { GetStaticPaths } from "astro";
 import ArticleLayout from "@/layouts/ArticleLayout.astro";
+import {
+  getDjangoArticleSource,
+  getPublicationSnapshot,
+} from "@/data/djangoArticleSource";
 import { getPostSlug } from "@/utils/getPostPaths";
 import {
   getFurtherReading,
@@ -9,32 +13,40 @@ import {
   getTopicContext,
   type PublishedArticleEntry,
 } from "@/utils/content";
+import { renderRemoteMarkdown } from "@/utils/remoteMarkdown";
 
-export async function getStaticPaths() {
-  const entries = await getCollection("posts");
-  const articles = getPublishedArticles(entries, new Date());
+export const getStaticPaths = (async () => {
+  const snapshot = await getPublicationSnapshot();
+  const articles = getPublishedArticles(snapshot.articles, new Date());
 
   return articles.map(article => ({
-    params: { slug: getPostSlug(article.id, article.filePath) },
-    props: { article },
+    params: { slug: getPostSlug(article.id) },
+    props: { article, taxonomy: snapshot.taxonomy },
   }));
-}
+}) satisfies GetStaticPaths;
 
 interface Props {
-  article: CollectionEntry<"posts">;
+  article: PublishedArticleEntry;
+  taxonomy: Awaited<ReturnType<typeof getPublicationSnapshot>>["taxonomy"];
 }
 
-const { article: rawArticle }: Props = Astro.props;
-const article = rawArticle as PublishedArticleEntry;
-const entries = await getCollection("posts");
-const articles = getPublishedArticles(entries, new Date());
+const { article, taxonomy }: Props = Astro.props;
+const source = getDjangoArticleSource();
+const articles = getPublishedArticles(
+  await source.getPublishedArticles(),
+  new Date()
+);
 const topicContext = getTopicContext(articles, article.id);
 const seriesContext = getSeriesContext(articles, article.id);
 const furtherReading = getFurtherReading(articles, article.id);
-const { Content, headings } = await render(article);
+const { html, headings } = await renderRemoteMarkdown(
+  article.bodyMarkdown,
+  article.id,
+  source.mediaOrigin
+);
 const readingMinutes = Math.max(
   1,
-  Math.ceil((article.body?.length ?? 0) / 500)
+  Math.ceil(article.bodyMarkdown.length / 500)
 );
 ---
 
@@ -45,6 +57,7 @@ const readingMinutes = Math.max(
   {seriesContext}
   {furtherReading}
   {readingMinutes}
+  {taxonomy}
 >
-  <Content />
+  <Fragment set:html={html} />
 </ArticleLayout>

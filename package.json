@@ -6,8 +6,12 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "dev": "astro dev --host 0.0.0.0",
-    "build": "astro check && astro build && pagefind --site dist && node scripts/copy-pagefind.mjs",
+    "dev": "node scripts/dev.mjs",
+    "build": "node scripts/check-content-api.mjs && astro check && astro build && pagefind --site dist && node scripts/copy-pagefind.mjs",
+    "django:check": "node scripts/django.mjs check",
+    "django:migrate": "node scripts/django.mjs migrate",
+    "django:createsuperuser": "node scripts/django.mjs createsuperuser",
+    "django:test": "node scripts/django.mjs test test.backend content",
     "preview": "astro preview",
     "sync": "astro sync",
     "astro": "astro",

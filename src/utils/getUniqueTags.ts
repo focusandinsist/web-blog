@@ -16,7 +16,7 @@ type Tag = {
  */
 export function getUniqueTags(posts: readonly PublishedArticleEntry[]) {
   const tags: Tag[] = posts
-    .flatMap(post => post.data.tags)
+    .flatMap(post => post.tags)
     .map(tag => ({ tag: slugifyStr(tag), tagName: tag }))
     .filter(
       (value, index, self) =>

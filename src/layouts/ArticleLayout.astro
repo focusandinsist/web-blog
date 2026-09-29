@@ -1,6 +1,6 @@
 ---
 import type { MarkdownHeading } from "astro";
-import { Image } from "astro:assets";
+import type { PublicationTaxonomy } from "@/data/djangoArticleSource";
 import type {
   PublishedArticleEntry,
   SeriesContext,
@@ -25,6 +25,7 @@ interface Props {
   seriesContext: SeriesContext | null;
   furtherReading: PublishedArticleEntry[];
   readingMinutes: number;
+  taxonomy: PublicationTaxonomy;
 }
 
 const {
@@ -34,54 +35,53 @@ const {
   seriesContext,
   furtherReading,
   readingMinutes,
+  taxonomy,
 } = Astro.props;
 
-const articleOgImage =
-  typeof article.data.ogImage === "string"
-    ? article.data.ogImage
-    : article.data.ogImage?.src;
+const articleOgImage = article.ogImage ?? undefined;
 ---
 
 <PostLayout
-  title={`${article.data.title} | 系统工程笔记`}
-  description={article.data.description}
+  title={`${article.title} | 系统工程笔记`}
+  description={article.description}
   ogImage={articleOgImage}
-  canonicalURL={article.data.canonicalURL}
-  pubDatetime={article.data.pubDatetime}
-  modDatetime={article.data.modDatetime}
+  canonicalURL={article.canonicalURL ?? undefined}
+  pubDatetime={article.pubDatetime}
+  modDatetime={article.modDatetime}
 >
   <Header />
   <main id="main-content" class="article-page" data-pagefind-body>
     <div class="sr-only" aria-hidden="true">
       <span data-pagefind-filter="频道" data-pagefind-meta="channel">
-        {article.data.channel}
+        {article.channel}
       </span>
       {
-        article.data.topics.map(topic => (
+        article.topics.map(topic => (
           <span data-pagefind-filter="专题" data-pagefind-meta="topic">
             {topic}
           </span>
         ))
       }
       {
-        article.data.tags.map(tag => (
+        article.tags.map(tag => (
           <span data-pagefind-filter="标签" data-pagefind-meta="tag">
             {tag}
           </span>
         ))
       }
     </div>
-    <ArticleHeader {article} {readingMinutes} />
+    <ArticleHeader {article} {readingMinutes} {taxonomy} />
 
     {
-      article.data.heroImage && (
+      article.heroImage && (
         <figure class="article-hero">
-          <Image
-            src={article.data.heroImage}
-            alt={article.data.heroAlt ?? ""}
-            widths={[768, 1200, 1536]}
-            sizes="(min-width: 1280px) 768px, 100vw"
+          <img
+            src={article.heroImage.url}
+            alt={article.heroImage.alt}
+            width={article.heroImage.width ?? undefined}
+            height={article.heroImage.height ?? undefined}
             loading="eager"
+            decoding="async"
           />
         </figure>
       )
@@ -91,16 +91,21 @@ const articleOgImage =
       <article id="article" class="article-prose app-prose">
         <slot />
       </article>
-      <ContextRail {headings} {topicContext} />
+      <ContextRail {headings} {topicContext} topics={taxonomy.topics} />
     </div>
 
     <div class="article-footer-content">
       <SeriesProgress series={seriesContext} />
-      <RevisionHistory revisions={article.data.revisions} />
+      <RevisionHistory revisions={article.revisions} />
       <FurtherReading articles={furtherReading} />
     </div>
   </main>
-  <MobileReadingBar title={article.data.title} {headings} {topicContext} />
+  <MobileReadingBar
+    title={article.title}
+    {headings}
+    {topicContext}
+    topics={taxonomy.topics}
+  />
   <Footer />
 </PostLayout>
 

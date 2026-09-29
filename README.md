@@ -1,8 +1,8 @@
 # 系统工程笔记
 
-一个基于 Astro 7 和 Content Collections 的本地中文个人博客 MVP。站点以 Markdown/MDX 文件作为内容源，提供技术记录、生活记录和投资记录三个频道，以及专题、系列、项目复盘、全文搜索和亮暗主题。
+一个由 Django Admin 管理内容、由 Astro 静态生成页面的中文个人博客。文章和分类保存在 Django 数据库中；Astro 在开发和构建时读取只读发布 API，生成频道、专题、文章、RSS 和 Pagefind 搜索索引。
 
-当前项目是静态站点，不包含 Web 管理后台、数据库、账户或在线发布工作流。文章可以自由增删改查，但需要直接编辑仓库中的内容文件并重新构建站点。
+发布、编辑和撤回文章通过 Django Admin 完成。公开站点仍为静态输出，API 不可用时构建会失败。
 
 ## 主要能力
 
@@ -17,8 +17,8 @@
 
 ## 技术栈
 
-- Astro 7、TypeScript 6
-- Astro Content Collections、Markdown、MDX
+- Astro 7、TypeScript 6、Markdown
+- Django 5.2、Django REST Framework、SQLite
 - Tailwind CSS 4
 - Shiki、Mermaid、PhotoSwipe、Pagefind
 - Vitest、Playwright、axe-core
@@ -27,15 +27,21 @@
 
 - Node.js `>=22.12.0`
 - pnpm
+- Python `>=3.10`
 
 ## 本地运行
 
 ```powershell
 pnpm install
+Copy-Item .env.example .env
+python -m pip install -r backend/requirements.txt
+pnpm django:migrate
 pnpm dev
 ```
 
-开发服务器默认位于 `http://localhost:4321`，实际地址和端口以终端输出为准。
+`pnpm dev` 会启动 Django 和 Astro，并在 API 健康检查通过后启动 Astro。默认地址为 Django Admin/API `http://127.0.0.1:8000/` 和 Astro `http://127.0.0.1:4321/`。按 `Ctrl+C` 会停止两个服务。
+
+需要登录 Admin 时，运行 `pnpm django:createsuperuser` 创建管理员。`.env` 可调整数据库、媒体目录、监听地址和端口。局域网访问时，将 `ASTRO_HOST` 和 `DJANGO_BIND_HOST` 设为 `0.0.0.0`，把主机的局域网 IPv4 地址加入 `DJANGO_ALLOWED_HOSTS`，并将 `CONTENT_API_URL` 改为 `http://<主机IPv4>:8000/api/publication/v1/`；Windows 防火墙需允许 4321 和 8000 端口的入站连接。仅本机开发可保留 `.env.example` 中的默认 API 地址。
 
 开发模式适合查看页面和编辑内容，但不会重新生成最新的 Pagefind 搜索索引。需要验收搜索时，请使用生产构建和预览：
 
@@ -46,43 +52,43 @@ pnpm preview
 
 ## 常用命令
 
-| 命令                 | 作用                                          |
-| -------------------- | --------------------------------------------- |
-| `pnpm dev`           | 启动 Astro 开发服务器                         |
-| `pnpm test`          | 运行 Vitest 单元测试                          |
-| `pnpm test:watch`    | 监听文件变化并运行单元测试                    |
-| `pnpm test:e2e`      | 运行 Playwright 端到端测试                    |
-| `pnpm article:new`   | 创建一篇默认未发布的本地文章草稿              |
-| `pnpm content:check` | 检查频道、专题、关联文章和系列引用完整性      |
-| `pnpm lint`          | 运行 ESLint                                   |
-| `pnpm check`         | 运行内容完整性、Astro 类型、ESLint 和格式检查 |
-| `pnpm format`        | 使用 Prettier 格式化项目                      |
-| `pnpm build`         | 检查并构建静态站点，同时生成 Pagefind 索引    |
-| `pnpm preview`       | 本地预览 `dist/` 中的生产构建                 |
+| 命令                          | 作用                                            |
+| ----------------------------- | ----------------------------------------------- |
+| `pnpm dev`                    | 等待 Django API 健康后启动 Django 和 Astro      |
+| `pnpm django:migrate`         | 应用 Django 数据库迁移                          |
+| `pnpm django:check`           | 检查 Django 配置                                |
+| `pnpm django:createsuperuser` | 创建 Admin 管理员                               |
+| `pnpm django:test`            | 运行 Django 测试                                |
+| `pnpm test`                   | 运行 Vitest 单元测试                            |
+| `pnpm test:e2e`               | 运行 Playwright 端到端测试                      |
+| `pnpm content:check`          | 检查迁移参考 Markdown 中的内容关联              |
+| `pnpm check`                  | 运行迁移内容校验、Astro 类型、ESLint 和格式检查 |
+| `pnpm build`                  | 检查 API 并构建静态站点和 Pagefind 索引         |
+| `pnpm preview`                | 本地预览 `dist/` 中的生产构建                   |
 
 Playwright 回归还包含无 JavaScript 基础能力检查和站点健康检查；发布前应确保核心页面、图片、站内链接和资源请求均无错误。
 
 ## 项目架构
 
-项目采用“内容文件 -> 内容集合 -> 纯 TypeScript 查询 -> Astro 页面”的静态生成流程：
+项目采用“Django 数据库 -> 只读发布 API -> Astro 视图模型 -> 静态页面”的生成流程：
 
 ```text
-src/content/posts/*.{md,mdx}
+backend/content/models.py
           │
           ▼
-src/content.config.ts          校验 Frontmatter 和内容类型
+backend/content/api.py         公开文章、专题和健康检查
           │
           ▼
-src/utils/content.ts           过滤草稿和定时文章，组织频道、专题、系列和相关推荐
+src/data/djangoArticleSource.ts 映射 DTO 并检查 API 健康状态
           │
           ▼
-src/pages/**/*.astro           在构建阶段生成首页、目录页和文章页
+src/utils/content.ts           组织频道、专题、系列和相关推荐
           │
-          ├──> dist/           可直接预览或部署的静态文件
-          └──> Pagefind        生产构建生成全文搜索索引
+          ├──> dist/            可直接预览或部署的静态文件
+          └──> Pagefind         生产构建生成全文搜索索引
 ```
 
-页面只负责组合和渲染，内容筛选、排序及关联关系集中在 `src/utils/content.ts`。首页、目录、文章上下文和搜索因此基于同一份 Content Collections 数据。
+文章 Markdown 由 Django API 提供，Astro 在构建期渲染；Django 媒体路径会转换为绝对 URL。`src/content/pages/` 仍通过 Astro collection 提供关于页等静态页面。
 
 ### 目录结构
 
@@ -90,8 +96,12 @@ src/pages/**/*.astro           在构建阶段生成首页、目录页和文章�
 web-blog/
 ├── astro.config.ts                 # Astro、Markdown、Shiki 和 Mermaid 配置
 ├── astro-paper.config.ts           # 站点信息、分页、主题、搜索和分享配置
+├── .env.example                    # Django、API 和 Astro 本地配置
+├── backend/                        # Django Admin、SQLite 模型和发布 API
 ├── public/                         # 保持固定公开路径的资源
 ├── scripts/
+│   ├── dev.mjs                     # 并行启动 Django 和 Astro
+│   ├── check-content-api.mjs       # 构建前 API 健康检查
 │   └── copy-pagefind.mjs           # 同步构建后的搜索资源
 ├── src/
 │   ├── assets/                     # 本地图片和 SVG 图标
@@ -103,16 +113,17 @@ web-blog/
 │   │   └── theme/                  # 三态主题切换
 │   ├── content/
 │   │   ├── pages/                  # 关于等独立内容页
-│   │   └── posts/                  # Markdown/MDX 文章源文件
+│   │   └── posts/                  # 只读迁移参考文章
 │   ├── data/taxonomy.ts            # 频道和专题定义
 │   ├── layouts/                    # 基础页面和文章布局
 │   ├── pages/                      # Astro 文件路由
 │   ├── styles/                     # 页面与主题样式
 │   ├── content.config.ts           # Content Collections Schema
 │   └── utils/content.ts            # 内容查询与关联逻辑
-└── tests/
-    ├── unit/                       # 内容模型和分类单元测试
-    └── e2e/                        # 首页、导航、文章、搜索和主题 E2E
+├── tests/
+│   ├── unit/                       # 内容模型和分类单元测试
+│   └── e2e/                        # 首页、导航、文章、搜索和主题 E2E
+└── test/backend/                   # Django Admin/API 和导入测试
 ```
 
 ### 主要路由
@@ -132,143 +143,20 @@ web-blog/
 
 ## 管理文章
 
-### 内容存放规则
+运行 `pnpm dev` 后访问 `http://127.0.0.1:8000/admin/`。首次使用先运行 `pnpm django:createsuperuser` 创建管理员。
 
-文章位于以下三个目录：
+在 Django Admin 中新建或编辑文章，设置频道、一个或多个专题、发布时间、正文 Markdown、图片、系列和关联文章。保存后重启 `pnpm dev` 以重新载入开发服务器中的文章快照；生产静态页面、RSS、sitemap 和搜索索引需重新运行 `pnpm build`。
 
-```text
-src/content/posts/technology/
-src/content/posts/life/
-src/content/posts/investment/
-```
+`src/content/posts/` 中的 Markdown 文件保留为迁移参考和 fixture 输入，不是公开站点的默认数据源。新增、修改或撤回线上可见内容请通过 Django Admin 完成。
 
-建议文件名使用英文小写和连字符。例如 `src/content/posts/technology/epoll-slow-consumer.md` 会生成：
+频道和专题定义由 Django 数据库维护；Astro 将发布 API 的 `primaryTopic` 用于文章上下文，并将 `topics` 用于多专题归类。
 
-```text
-/articles/technology/epoll-slow-consumer/
-```
-
-文件目录和文件名决定 URL；Frontmatter 中的 `channel` 决定频道归类。两者应保持一致，避免 URL 和频道归类表达不同含义。重命名或移动文件会改变文章 URL，也需要同步更新其他文章中的 `related` 引用。
-
-### 新增文章
-
-推荐使用本地命令创建初始草稿：
-
-```powershell
-pnpm article:new -- --channel technology --slug io-backpressure --title "I/O 背压记录" --topic systems-programming
-```
-
-命令会创建 `src/content/posts/<channel>/<slug>.md`，并默认设置 `draft: true`。它只是本地文件脚手架，不是 Web 管理后台，也不会自动发布文章。
-
-也可以继续手工创建 Markdown/MDX：
-
-1. 在对应频道目录中创建 `.md` 或 `.mdx` 文件。
-2. 填写 Frontmatter，并至少指定一个专题。
-3. 在 Frontmatter 下方编写 Markdown/MDX 正文。
-4. 运行 `pnpm content:check` 校验频道、专题、关联文章和系列引用。
-5. 运行 `pnpm check` 校验字段、类型和格式。
-6. 运行 `pnpm build` 检查静态路由和搜索索引。
-
-最小文章模板：
-
-```md
----
-title: "文章标题"
-description: "用于目录、搜索和页面元信息的文章摘要，长度需要在 20 到 180 个字符之间。"
-pubDatetime: 2026-09-14T10:00:00+08:00
-channel: technology
-topics: [systems-programming]
-tags: [Linux]
-draft: true
----
-
-## 问题
-
-正文内容。
-
-## 结论
-
-正文内容。
-```
-
-新文章建议先设置 `draft: true`。确认内容和页面无误后，将其改为 `false` 或删除该字段，再执行生产构建。
-
-### 查询文章
-
-- 浏览全部文章：访问 `/articles/`。
-- 按频道浏览：访问 `/channels/[channel]/`。
-- 按专题浏览：访问 `/topics/[topic]/`。
-- 全文搜索：先运行 `pnpm build` 和 `pnpm preview`，再访问 `/search/`。
-- 在源码中查找：直接在 `src/content/posts/` 中按文件名、标题或正文搜索。
-
-首页每个频道先按 `featuredRank` 推荐顺序排列，未设置推荐顺序的文章再按“最后修改时间优先，否则按发布时间”倒序排列；目录和专题中的文章始终按该更新时间规则倒序排列。
-
-### 修改文章
-
-直接编辑对应的 `.md` 或 `.mdx` 文件。修改已经发布的文章时，建议同时：
-
-- 将 `modDatetime` 更新为本次修改时间。
-- 在 `revisions` 中记录有实质意义的修订。
-- 检查 `topics`、`tags`、`series` 和 `related` 是否仍然有效。
-- 执行 `pnpm content:check`、`pnpm check` 和 `pnpm build`。
-
-修订记录示例：
-
-```yaml
-modDatetime: 2026-09-14T16:00:00+08:00
-revisions:
-  - date: 2026-09-14T16:00:00+08:00
-    summary: "补充故障边界和验证结果。"
-```
-
-### 删除文章
-
-1. 删除对应的 `.md` 或 `.mdx` 文件。
-2. 搜索并移除其他文章 `related` 中对该文章 ID 的引用。
-3. 如果文章属于系列，检查剩余文章的 `series.order` 是否仍然连续。
-4. 重新运行 `pnpm content:check`、`pnpm check` 和 `pnpm build`。
-
-文章 ID 是相对于 `src/content/posts/` 的无扩展名路径，例如 `technology/epoll-slow-consumer`。删除源文件并重新构建后，对应静态页面和搜索记录才会从最新构建产物中消失。
-
-### 发布、撤回与定时文章
-
-- `draft: true`：不生成公开文章页，也不进入首页、目录、RSS 和搜索索引。
-- `draft: false` 或省略 `draft`：允许发布。
-- `pubDatetime` 晚于构建时间：视为定时文章，在到达发布时间后的下一次构建中发布。
-- 临时撤回文章：将 `draft` 改为 `true` 并重新构建。
-
-这是静态站点，不会在时间到达时自动构建。定时文章仍需要届时手动或由外部自动化重新执行 `pnpm build`。
-
-### Frontmatter 字段
-
-| 字段           | 必填 | 说明                                                               |
-| -------------- | ---- | ------------------------------------------------------------------ |
-| `title`        | 是   | 文章标题                                                           |
-| `description`  | 是   | 20 到 180 个字符的摘要                                             |
-| `pubDatetime`  | 是   | 发布时间                                                           |
-| `channel`      | 是   | `technology`、`life` 或 `investment`                               |
-| `topics`       | 是   | 至少一个专题 ID；第一个专题用于文章上下文                          |
-| `author`       | 否   | 默认使用站点作者                                                   |
-| `modDatetime`  | 否   | 最后修改时间，存在时也参与文章排序                                 |
-| `tags`         | 否   | 标签数组，默认空数组                                               |
-| `kind`         | 否   | `article` 或 `case-study`；后者进入项目复盘页                      |
-| `status`       | 否   | `complete`、`evolving` 或 `archived`；仅表示内容状态，不控制发布   |
-| `featuredRank` | 否   | 1 到 99 的首页频道推荐顺序；数值越小越靠前，未设置时按更新时间倒序 |
-| `series`       | 否   | `{ id, order }`，用于生成系列顺序和上一篇/下一篇                   |
-| `related`      | 否   | 最多 3 个文章 ID，延伸阅读会优先使用这些文章                       |
-| `heroImage`    | 否   | 本地头图；显示在文章标题下方                                       |
-| `heroAlt`      | 条件 | 设置 `heroImage` 时必填的替代文本                                  |
-| `draft`        | 否   | 是否为草稿，默认 `false`                                           |
-| `revisions`    | 否   | `{ date, summary }` 数组，默认空数组                               |
-| `ogImage`      | 否   | 文章分享图；未设置时使用站点默认分享图                             |
-| `canonicalURL` | 否   | 规范 URL                                                           |
-
-频道和预定义专题维护在 `src/data/taxonomy.ts`。新增频道时还需要同步扩展 Content Schema、频道类型、页面和样式；新增专题通常只需添加一条专题定义并在文章中引用其 ID。
+文章仅在 Django 的 `is_draft` 为 `false` 且 `pub_datetime` 不晚于当前时间时公开；更改状态或发布时间后，开发页面会读取 API 当前状态，生产输出需重新构建。
 
 ## 内容关联规则
 
 - 一篇文章只能属于一个频道，但可以属于多个专题。
-- `topics[0]` 是文章页上下文使用的主专题。
+- `primaryTopic` 是文章页上下文和相关推荐使用的主专题。
 - 系列仅表达阅读顺序，不代替专题归类。
 - `related` 使用文章 ID，不使用完整 URL。
 - 延伸阅读优先采用 `related`，不足三篇时从主专题补齐。
@@ -279,9 +167,9 @@ revisions:
 ## 图片与静态资源
 
 - 首页和频道图片位于 `src/assets/images/`。
-- 文章图片建议放在 `src/assets/` 下，并使用相对路径引用。
+- 文章图片由 Django 媒体存储管理。
 - `public/` 用于无需 Astro 处理、需要保持固定公开路径的文件。
-- 核心页面不应依赖远程图片地址。
+- 文章正文媒体链接会在构建期解析为 Django 的绝对媒体 URL。
 - 正文图片会进入图片说明和预览增强；`heroImage` 会显示在文章标题下方并使用 `heroAlt` 作为替代文本。
 
 ## 验证与构建
@@ -295,7 +183,7 @@ pnpm check
 pnpm build
 ```
 
-其中 `pnpm build` 会先执行 Astro 类型检查，然后生成静态页面和 Pagefind 索引。搜索验收必须基于最新生产构建，不能只检查开发服务器。
+其中 `pnpm build` 会先检查 Django API 健康状态，再执行 Astro 类型检查、生成静态页面和 Pagefind 索引。API 不可用时会在构建开始前以明确错误退出。
 
 测试范围：
 
@@ -309,7 +197,8 @@ pnpm build
 - 站点名称、作者、URL、分页、搜索和分享入口：`astro-paper.config.ts`
 - Astro、Markdown、MDX、Shiki 和 Mermaid：`astro.config.ts`
 - 频道和专题：`src/data/taxonomy.ts`
-- 文章数据约束：`src/content.config.ts`
+- Django 模型和 API：`backend/content/`
+- Astro 文章 DTO 和渲染：`src/data/`、`src/utils/remoteMarkdown.ts`
 - 关于页面：`src/content/pages/about.md`
 
 当前 `site.url` 指向本地地址。若未来部署到线上，需要先改为正式站点 URL，再重新构建 sitemap、RSS、规范链接和分享元信息。
@@ -318,10 +207,10 @@ pnpm build
 
 本地 MVP 暂不包含以下能力：
 
-- Web 内容管理后台
+- 自动发布构建和线上部署流水线
 - 用户、角色和权限系统
 - 评论、访问统计和邮件订阅
-- 数据库和远程对象存储
+- 远程对象存储
 - 自动部署、域名和远程 CI 配置
 - PWA 和离线缓存
 

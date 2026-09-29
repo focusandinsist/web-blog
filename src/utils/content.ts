@@ -1,4 +1,3 @@
-import type { CollectionEntry } from "astro:content";
 import {
   CHANNELS,
   TOPICS,
@@ -6,12 +5,11 @@ import {
   type ChannelId,
   type TopicDefinition,
 } from "@/data/taxonomy";
+import type { Article, PublishedArticle } from "@/data/article";
+import type { PublicationTaxonomy } from "@/data/djangoArticleSource";
 
-export type ArticleEntry = CollectionEntry<"posts">;
-
-export type PublishedArticleEntry = ArticleEntry & {
-  readonly __published: unique symbol;
-};
+export type ArticleEntry = Article;
+export type PublishedArticleEntry = PublishedArticle;
 
 export type HomeChannel = ChannelDefinition & {
   articles: PublishedArticleEntry[];
@@ -50,16 +48,16 @@ export interface SeriesContext {
   next: PublishedArticleEntry | null;
 }
 
-function articleTimestamp(entry: ArticleEntry): number {
-  return (entry.data.modDatetime ?? entry.data.pubDatetime).getTime();
+function articleTimestamp(entry: Article): number {
+  return (entry.modDatetime ?? entry.pubDatetime).getTime();
 }
 
 function compareHomeArticles(
   left: PublishedArticleEntry,
   right: PublishedArticleEntry
 ): number {
-  const leftRank = left.data.featuredRank;
-  const rightRank = right.data.featuredRank;
+  const leftRank = left.featuredRank ?? undefined;
+  const rightRank = right.featuredRank ?? undefined;
 
   if (leftRank !== undefined || rightRank !== undefined) {
     if (leftRank === undefined) return 1;
@@ -87,8 +85,7 @@ export function getPublishedArticles(
 
   return entries
     .filter(
-      entry =>
-        !entry.data.draft && entry.data.pubDatetime.getTime() <= nowTimestamp
+      entry => !entry.draft && entry.pubDatetime.getTime() <= nowTimestamp
     )
     .toSorted(
       (left, right) => articleTimestamp(right) - articleTimestamp(left)
@@ -99,21 +96,22 @@ export function getChannelArticles(
   entries: readonly PublishedArticleEntry[],
   channel: ChannelId
 ): PublishedArticleEntry[] {
-  return entries.filter(entry => entry.data.channel === channel);
+  return entries.filter(entry => entry.channel === channel);
 }
 
 export function getTopicArticles(
   entries: readonly PublishedArticleEntry[],
   topic: string
 ): PublishedArticleEntry[] {
-  return entries.filter(entry => entry.data.topics.includes(topic));
+  return entries.filter(entry => entry.topics.includes(topic));
 }
 
 export function getHomeChannels(
   entries: readonly PublishedArticleEntry[],
-  limit = 5
+  limit = 5,
+  channels: readonly ChannelDefinition[] = CHANNELS
 ): HomeChannel[] {
-  return CHANNELS.map(channel => ({
+  return channels.map(channel => ({
     ...channel,
     articles: getChannelArticles(entries, channel.id)
       .toSorted(compareHomeArticles)
@@ -130,19 +128,20 @@ function topicNameFromId(topic: string): string {
 }
 
 export function getTopicDirectory(
-  entries: readonly PublishedArticleEntry[]
+  entries: readonly PublishedArticleEntry[],
+  topicDefinitions: readonly TopicDefinition[] = TOPICS
 ): TopicDirectoryItem[] {
-  const definitions = [...TOPICS];
+  const definitions = [...topicDefinitions];
   const knownIds = new Set(definitions.map(topic => topic.id));
 
   for (const article of entries) {
-    for (const topic of article.data.topics) {
+    for (const topic of article.topics) {
       if (!knownIds.has(topic)) {
         definitions.push({
           id: topic,
           name: topicNameFromId(topic),
           description: `收录与 ${topicNameFromId(topic)} 相关的文章。`,
-          channel: article.data.channel,
+          channel: article.channel,
           href: `/topics/${topic}/`,
         });
         knownIds.add(topic);
@@ -155,7 +154,7 @@ export function getTopicDirectory(
     const seriesIds = [
       ...new Set(
         articles
-          .map(article => article.data.series?.id)
+          .map(article => article.series?.id)
           .filter((id): id is string => Boolean(id))
       ),
     ];
@@ -166,10 +165,10 @@ export function getTopicDirectory(
       series: seriesIds.map(id => ({
         id,
         articles: articles
-          .filter(article => article.data.series?.id === id)
+          .filter(article => article.series?.id === id)
           .toSorted(
             (left, right) =>
-              (left.data.series?.order ?? 0) - (right.data.series?.order ?? 0)
+              (left.series?.order ?? 0) - (right.series?.order ?? 0)
           ),
       })),
     };
@@ -177,11 +176,15 @@ export function getTopicDirectory(
 }
 
 export function getChannelDirectory(
-  entries: readonly PublishedArticleEntry[]
+  entries: readonly PublishedArticleEntry[],
+  taxonomy: PublicationTaxonomy = {
+    channels: [...CHANNELS],
+    topics: [...TOPICS],
+  }
 ): ChannelDirectoryItem[] {
-  const topics = getTopicDirectory(entries);
+  const topics = getTopicDirectory(entries, taxonomy.topics);
 
-  return CHANNELS.map(channel => ({
+  return taxonomy.channels.map(channel => ({
     ...channel,
     articles: getChannelArticles(entries, channel.id),
     topics: topics.filter(topic => topic.channel === channel.id),
@@ -191,7 +194,7 @@ export function getChannelDirectory(
 export function getProjectArticles(
   entries: readonly PublishedArticleEntry[]
 ): PublishedArticleEntry[] {
-  return entries.filter(entry => entry.data.kind === "case-study");
+  return entries.filter(entry => entry.kind === "case-study");
 }
 
 export function getTopicContext(
@@ -199,7 +202,7 @@ export function getTopicContext(
   currentSlug: string
 ): TopicContext {
   const currentArticle = getArticleOrThrow(entries, currentSlug);
-  const topic = currentArticle.data.topics[0];
+  const topic = currentArticle.primaryTopic;
   if (!topic) {
     throw new Error(`Article "${currentSlug}" has no topic.`);
   }
@@ -229,7 +232,7 @@ export function getFurtherReading(
   const selected: PublishedArticleEntry[] = [];
   const selectedSlugs = new Set([currentSlug]);
 
-  for (const relatedSlug of currentArticle.data.related) {
+  for (const relatedSlug of currentArticle.related) {
     const relatedArticle = entriesBySlug.get(relatedSlug);
     if (relatedArticle && !selectedSlugs.has(relatedSlug)) {
       selected.push(relatedArticle);
@@ -237,7 +240,7 @@ export function getFurtherReading(
     }
   }
 
-  const primaryTopic = currentArticle.data.topics[0];
+  const primaryTopic = currentArticle.primaryTopic;
   if (primaryTopic && selected.length < 3) {
     for (const candidate of getTopicArticles(entries, primaryTopic)) {
       if (!selectedSlugs.has(candidate.id)) {
@@ -257,14 +260,13 @@ export function getSeriesContext(
   currentSlug: string
 ): SeriesContext | null {
   const currentArticle = getArticleOrThrow(entries, currentSlug);
-  const currentSeries = currentArticle.data.series;
+  const currentSeries = currentArticle.series;
   if (!currentSeries) return null;
 
   const articles = entries
-    .filter(entry => entry.data.series?.id === currentSeries.id)
+    .filter(entry => entry.series?.id === currentSeries.id)
     .toSorted(
-      (left, right) =>
-        (left.data.series?.order ?? 0) - (right.data.series?.order ?? 0)
+      (left, right) => (left.series?.order ?? 0) - (right.series?.order ?? 0)
     );
   const currentIndex = articles.findIndex(entry => entry.id === currentSlug);
 

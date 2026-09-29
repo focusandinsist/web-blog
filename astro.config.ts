@@ -3,21 +3,13 @@ import tailwindcss from "@tailwindcss/vite";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import { unified } from "@astrojs/markdown-remark";
-import remarkToc from "remark-toc";
-import remarkCollapse from "remark-collapse";
-import rehypeCallouts from "rehype-callouts";
-import rehypeMermaid from "rehype-mermaid";
-import {
-  transformerNotationDiff,
-  transformerNotationHighlight,
-  transformerNotationWordHighlight,
-} from "@shikijs/transformers";
-import {
-  transformerCodeMeta,
-  transformerFileName,
-} from "./src/utils/transformers/fileName";
-import { rehypeFigureImages } from "./src/utils/transformers/figureImages";
 import config from "./astro-paper.config";
+import {
+  markdownRehypePlugins,
+  markdownRemarkPlugins,
+  markdownShikiConfig,
+  markdownSyntaxHighlight,
+} from "./src/utils/markdown/options";
 
 export default defineConfig({
   site: config.site.url,
@@ -37,30 +29,12 @@ export default defineConfig({
     },
   },
   markdown: {
-    syntaxHighlight: { type: "shiki", excludeLangs: ["mermaid"] },
+    syntaxHighlight: markdownSyntaxHighlight,
     processor: unified({
-      remarkPlugins: [
-        remarkToc,
-        [remarkCollapse, { test: "Table of contents" }],
-      ],
-      rehypePlugins: [
-        rehypeCallouts,
-        rehypeFigureImages,
-        [rehypeMermaid, { strategy: "inline-svg" }],
-      ],
+      remarkPlugins: markdownRemarkPlugins,
+      rehypePlugins: markdownRehypePlugins,
     }),
-    shikiConfig: {
-      themes: { light: "min-light", dark: "night-owl" },
-      defaultColor: false,
-      wrap: false,
-      transformers: [
-        transformerFileName({ style: "v2", hideDot: false }),
-        transformerCodeMeta(),
-        transformerNotationHighlight(),
-        transformerNotationWordHighlight(),
-        transformerNotationDiff({ matchAlgorithm: "v3" }),
-      ],
-    },
+    shikiConfig: markdownShikiConfig,
   },
   vite: {
     plugins: [tailwindcss()],

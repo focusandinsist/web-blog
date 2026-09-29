@@ -1,6 +1,5 @@
 ---
 import type { GetStaticPaths } from "astro";
-import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
@@ -10,12 +9,14 @@ import {
   getPublishedArticles,
   type ChannelDirectoryItem,
 } from "@/utils/content";
+import { getPublicationSnapshot } from "@/data/djangoArticleSource";
 import "@/styles/directory.css";
 
 export const getStaticPaths = (async () => {
-  const entries = await getCollection("posts");
+  const snapshot = await getPublicationSnapshot();
   const channels = getChannelDirectory(
-    getPublishedArticles(entries, new Date())
+    getPublishedArticles(snapshot.articles, new Date()),
+    snapshot.taxonomy
   );
 
   return channels.map(channel => ({
@@ -65,6 +66,7 @@ const { channel } = Astro.props;
       <h2 id="channel-articles">最新文章</h2>
       <ArticleDirectoryList
         articles={channel.articles}
+        topics={channel.topics}
         emptyMessage="这个频道暂时没有文章。"
       />
     </section>

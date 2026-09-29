@@ -1,6 +1,5 @@
 ---
 import type { GetStaticPaths } from "astro";
-import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
@@ -11,15 +10,16 @@ import {
   getTopicDirectory,
 } from "@/utils/content";
 import "@/styles/directory.css";
+import { getPublicationSnapshot } from "@/data/djangoArticleSource";
 
 export const getStaticPaths = (() => [
   { params: { page: undefined } },
 ]) satisfies GetStaticPaths;
 
-const entries = await getCollection("posts");
-const articles = getPublishedArticles(entries, new Date());
-const channels = getChannelDirectory(articles);
-const topics = getTopicDirectory(articles);
+const snapshot = await getPublicationSnapshot();
+const articles = getPublishedArticles(snapshot.articles, new Date());
+const channels = getChannelDirectory(articles, snapshot.taxonomy);
+const topics = getTopicDirectory(articles, snapshot.taxonomy.topics);
 ---
 
 <Layout
@@ -66,7 +66,7 @@ const topics = getTopicDirectory(articles);
     <p class="directory-filter__count" aria-live="polite" data-results-count>
       共 {articles.length} 篇文章
     </p>
-    <ArticleDirectoryList {articles} />
+    <ArticleDirectoryList {articles} topics={snapshot.taxonomy.topics} />
     <p class="directory-empty" data-filter-empty hidden>
       没有符合当前条件的文章。
     </p>

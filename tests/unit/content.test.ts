@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getUniqueTags } from "@/utils/getUniqueTags";
+import type { Article } from "@/data/article";
 import {
   getChannelArticles,
   getChannelDirectory,
@@ -16,28 +17,31 @@ import {
 
 const NOW = new Date("2026-09-10T12:00:00.000Z");
 
-function article(
-  id: string,
-  overrides: Partial<ArticleEntry["data"]> = {}
-): ArticleEntry {
+function article(id: string, overrides: Partial<Article> = {}): ArticleEntry {
+  const slug = id.split("/").at(-1) ?? id;
   return {
     id,
-    collection: "posts",
-    data: {
-      author: "Author",
-      title: id,
-      description: `Description for ${id} with enough detail.`,
-      pubDatetime: new Date("2026-09-01T00:00:00.000Z"),
-      channel: "technology",
-      topics: ["systems"],
-      tags: [],
-      kind: "article",
-      status: "complete",
-      draft: false,
-      related: [],
-      revisions: [],
-      ...overrides,
-    },
+    slug,
+    title: id,
+    description: `Description for ${id} with enough detail.`,
+    bodyMarkdown: "## Body\n\nContent.",
+    pubDatetime: new Date("2026-09-01T00:00:00.000Z"),
+    modDatetime: null,
+    channel: "technology",
+    topics: ["systems"],
+    primaryTopic: "systems",
+    tags: [],
+    kind: "article",
+    status: "complete",
+    draft: false,
+    featuredRank: null,
+    series: null,
+    related: [],
+    heroImage: null,
+    ogImage: null,
+    canonicalURL: null,
+    revisions: [],
+    ...overrides,
   } as ArticleEntry;
 }
 
@@ -273,6 +277,31 @@ describe("getTopicContext", () => {
     ]);
   });
 
+  it("uses the explicit primary topic when the topics are sorted differently", () => {
+    const entries = published([
+      article("technology/current", {
+        topics: ["concurrency-engineering", "data-systems"],
+        primaryTopic: "data-systems",
+      }),
+      article("technology/concurrency-neighbor", {
+        topics: ["concurrency-engineering"],
+        primaryTopic: "concurrency-engineering",
+      }),
+      article("technology/data-neighbor", {
+        topics: ["data-systems"],
+        primaryTopic: "data-systems",
+      }),
+    ]);
+
+    const context = getTopicContext(entries, "technology/current");
+
+    expect(context.topic).toBe("data-systems");
+    expect(context.articles.map(item => item.article.id)).toEqual([
+      "technology/current",
+      "technology/data-neighbor",
+    ]);
+  });
+
   it("rejects an unknown current slug", () => {
     expect(() => getTopicContext(entries, "missing")).toThrow(
       'Article "missing" was not found.'
@@ -311,6 +340,28 @@ describe("getFurtherReading", () => {
     expect(
       getFurtherReading(entries, "current").map(entry => entry.id)
     ).toEqual(["fallback-1", "fallback-2", "fallback-3"]);
+  });
+
+  it("uses the explicit primary topic instead of the first sorted topic", () => {
+    const entries = published([
+      article("current", {
+        topics: ["concurrency-engineering", "data-systems"],
+        primaryTopic: "data-systems",
+        related: [],
+      }),
+      article("concurrency-neighbor", {
+        topics: ["concurrency-engineering"],
+        primaryTopic: "concurrency-engineering",
+      }),
+      article("data-neighbor", {
+        topics: ["data-systems"],
+        primaryTopic: "data-systems",
+      }),
+    ]);
+
+    expect(
+      getFurtherReading(entries, "current").map(entry => entry.id)
+    ).toEqual(["data-neighbor"]);
   });
 });
 

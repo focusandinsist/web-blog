@@ -1,5 +1,4 @@
 ---
-import { getCollection } from "astro:content";
 import type { GetStaticPathsOptions } from "astro";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
@@ -13,15 +12,16 @@ import { getUniqueTags } from "@/utils/getUniqueTags";
 import { slugifyAll } from "@/utils/slugify";
 import { useTranslations } from "@/i18n";
 import config from "@/config";
+import { getPublicationSnapshot } from "@/data/djangoArticleSource";
 
 export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
-  const entries = await getCollection("posts");
-  const posts = getPublishedArticles(entries, new Date());
+  const { articles } = await getPublicationSnapshot();
+  const posts = getPublishedArticles(articles, new Date());
   const tags = getUniqueTags(posts);
 
   return tags.flatMap(({ tag, tagName }) => {
-    const tagPosts = posts.filter(({ data }) =>
-      slugifyAll(data.tags).includes(tag)
+    const tagPosts = posts.filter(article =>
+      slugifyAll(article.tags).includes(tag)
     );
 
     return paginate(tagPosts, {

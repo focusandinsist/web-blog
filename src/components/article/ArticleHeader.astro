@@ -1,17 +1,17 @@
 ---
 import type { PublishedArticleEntry } from "@/utils/content";
-import { CHANNELS, TOPICS } from "@/data/taxonomy";
+import type { PublicationTaxonomy } from "@/data/djangoArticleSource";
 
 interface Props {
   article: PublishedArticleEntry;
   readingMinutes: number;
+  taxonomy: PublicationTaxonomy;
 }
 
-const { article, readingMinutes } = Astro.props;
-const { data } = article;
-const channel = CHANNELS.find(item => item.id === data.channel);
-const primaryTopic = data.topics[0];
-const topic = TOPICS.find(item => item.id === primaryTopic);
+const { article, readingMinutes, taxonomy } = Astro.props;
+const channel = taxonomy.channels.find(item => item.id === article.channel);
+const primaryTopic = article.primaryTopic;
+const topic = taxonomy.topics.find(item => item.id === primaryTopic);
 const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
   year: "numeric",
   month: "long",
@@ -39,36 +39,36 @@ const statusLabels = {
     </ol>
   </nav>
 
-  <h1>{data.title}</h1>
-  <p class="article-header__description">{data.description}</p>
+  <h1>{article.title}</h1>
+  <p class="article-header__description">{article.description}</p>
 
   <dl class="article-meta" data-article-meta>
     <div>
       <dt>发布于</dt>
       <dd>
-        <time datetime={data.pubDatetime.toISOString()}
-          >{dateFormatter.format(data.pubDatetime)}</time
+        <time datetime={article.pubDatetime.toISOString()}
+          >{dateFormatter.format(article.pubDatetime)}</time
         >
       </dd>
     </div>
     {
-      data.modDatetime && (
+      article.modDatetime && (
         <div>
           <dt>更新于</dt>
           <dd>
-            <time datetime={data.modDatetime.toISOString()}>
-              {dateFormatter.format(data.modDatetime)}
+            <time datetime={article.modDatetime.toISOString()}>
+              {dateFormatter.format(article.modDatetime)}
             </time>
           </dd>
         </div>
       )
     }
     <div><dt>阅读时间</dt><dd>{readingMinutes} 分钟阅读</dd></div>
-    <div><dt>状态</dt><dd>{statusLabels[data.status]}</dd></div>
+    <div><dt>状态</dt><dd>{statusLabels[article.status]}</dd></div>
   </dl>
 
   {
-    data.channel === "investment" && (
+    article.channel === "investment" && (
       <aside class="article-risk-note" role="note">
         本文是个人研究与复盘记录，不构成任何投资建议。
       </aside>

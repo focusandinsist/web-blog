@@ -1,13 +1,16 @@
 ---
-import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import { getChannelDirectory, getPublishedArticles } from "@/utils/content";
 import "@/styles/directory.css";
+import { getPublicationSnapshot } from "@/data/djangoArticleSource";
 
-const entries = await getCollection("posts");
-const channels = getChannelDirectory(getPublishedArticles(entries, new Date()));
+const snapshot = await getPublicationSnapshot();
+const channels = getChannelDirectory(
+  getPublishedArticles(snapshot.articles, new Date()),
+  snapshot.taxonomy
+);
 ---
 
 <Layout

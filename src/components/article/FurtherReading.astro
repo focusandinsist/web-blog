@@ -16,16 +16,10 @@ const { articles } = Astro.props;
       <ul>
         {articles.slice(0, 3).map(article => (
           <li>
-            <a
-              href={getPostUrl(
-                article.id,
-                article.filePath,
-                Astro.currentLocale
-              )}
-            >
-              {article.data.title}
+            <a href={getPostUrl(article.id, Astro.currentLocale)}>
+              {article.title}
             </a>
-            <p>{article.data.description}</p>
+            <p>{article.description}</p>
           </li>
         ))}
       </ul>

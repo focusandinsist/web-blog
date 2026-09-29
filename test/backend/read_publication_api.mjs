@@ -1,12 +1,14 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import path from "node:path";
 
 const baseUrl = process.argv[2] ?? "http://127.0.0.1:8000/api/publication/v1";
 const apiOrigin = new URL(baseUrl).origin;
 const fixturePath = fileURLToPath(
-  new URL("../../backend/content/fixtures/publication_api.json", import.meta.url),
+  new URL(
+    "../../backend/content/fixtures/publication_api.json",
+    import.meta.url
+  )
 );
 const fixture = JSON.parse(await readFile(fixturePath, "utf8"));
 const [articlesResponse, taxonomyResponse, healthResponse] = await Promise.all([
@@ -16,7 +18,11 @@ const [articlesResponse, taxonomyResponse, healthResponse] = await Promise.all([
 ]);
 
 for (const response of [articlesResponse, taxonomyResponse, healthResponse]) {
-  assert.equal(response.status, 200, `Unexpected API response: ${response.status}`);
+  assert.equal(
+    response.status,
+    200,
+    `Unexpected API response: ${response.status}`
+  );
 }
 
 const articles = await articlesResponse.json();
@@ -25,10 +31,16 @@ const health = await healthResponse.json();
 const expected = structuredClone(fixture);
 for (const article of expected.articles) {
   if (article.heroImage) {
-    article.heroImage.url = article.heroImage.url.replace("http://api.example.test", apiOrigin);
+    article.heroImage.url = article.heroImage.url.replace(
+      "http://api.example.test",
+      apiOrigin
+    );
   }
   if (article.ogImage) {
-    article.ogImage = article.ogImage.replace("http://api.example.test", apiOrigin);
+    article.ogImage = article.ogImage.replace(
+      "http://api.example.test",
+      apiOrigin
+    );
   }
 }
 
@@ -40,4 +52,6 @@ const heroImage = articles.find(article => article.heroImage)?.heroImage;
 assert(heroImage, "Expected at least one published article with a hero image.");
 const imageResponse = await fetch(heroImage.url);
 assert.equal(imageResponse.status, 200, "Hero image URL did not resolve.");
-process.stdout.write(`Read ${articles.length} published articles and ${taxonomy.topics.length} topics.\n`);
+process.stdout.write(
+  `Read ${articles.length} published articles and ${taxonomy.topics.length} topics.\n`
+);

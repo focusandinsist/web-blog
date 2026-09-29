@@ -25,29 +25,17 @@ const { series } = Astro.props;
       </div>
       <div class="series-progress__links">
         {series.previous ? (
-          <a
-            href={getPostUrl(
-              series.previous.id,
-              series.previous.filePath,
-              Astro.currentLocale
-            )}
-          >
+          <a href={getPostUrl(series.previous.id, Astro.currentLocale)}>
             <span>上一篇</span>
-            {series.previous.data.title}
+            {series.previous.title}
           </a>
         ) : (
           <span />
         )}
         {series.next ? (
-          <a
-            href={getPostUrl(
-              series.next.id,
-              series.next.filePath,
-              Astro.currentLocale
-            )}
-          >
+          <a href={getPostUrl(series.next.id, Astro.currentLocale)}>
             <span>下一篇</span>
-            {series.next.data.title}
+            {series.next.title}
           </a>
         ) : (
           <span />

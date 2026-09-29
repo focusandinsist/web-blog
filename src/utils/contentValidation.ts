@@ -1,13 +1,14 @@
 import { TOPICS } from "@/data/taxonomy";
-import type { ArticleEntry } from "./content";
-
 export interface ContentValidationEntry {
   id: string;
   filePath: string;
-  data: Pick<
-    ArticleEntry["data"],
-    "channel" | "topics" | "related" | "series" | "draft"
-  >;
+  data: {
+    channel: string;
+    topics: string[];
+    related: string[];
+    series?: { id: string; order: number };
+    draft: boolean;
+  };
 }
 
 export interface ContentValidationIssue {
