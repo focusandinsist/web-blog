@@ -1,0 +1,145 @@
+{
+  "version": 1,
+  "mode": "apply",
+  "source": "src/content/posts",
+  "summary": {
+    "files": 21,
+    "created": 21,
+    "updated": 0,
+    "skipped": 0,
+    "planned_created": 21,
+    "planned_updated": 0
+  },
+  "articles": [
+    {
+      "source": "investment/decision-journal.md",
+      "id": "investment/decision-journal",
+      "action": "create"
+    },
+    {
+      "source": "investment/evidence-checklist.md",
+      "id": "investment/evidence-checklist",
+      "action": "create"
+    },
+    {
+      "source": "investment/opinion-vs-evidence.md",
+      "id": "investment/opinion-vs-evidence",
+      "action": "create"
+    },
+    {
+      "source": "investment/position-sizing-rules.md",
+      "id": "investment/position-sizing-rules",
+      "action": "create"
+    },
+    {
+      "source": "investment/risk-budget.md",
+      "id": "investment/risk-budget",
+      "action": "create"
+    },
+    {
+      "source": "investment/wrong-assumption-review.md",
+      "id": "investment/wrong-assumption-review",
+      "action": "create"
+    },
+    {
+      "source": "life/learning-after-ten-years.md",
+      "id": "life/learning-after-ten-years",
+      "action": "create"
+    },
+    {
+      "source": "life/long-distance-walk.md",
+      "id": "life/long-distance-walk",
+      "action": "create"
+    },
+    {
+      "source": "life/personal-knowledge-system.md",
+      "id": "life/personal-knowledge-system",
+      "action": "create"
+    },
+    {
+      "source": "life/reading-with-questions.md",
+      "id": "life/reading-with-questions",
+      "action": "create"
+    },
+    {
+      "source": "life/walking-route.md",
+      "id": "life/walking-route",
+      "action": "create"
+    },
+    {
+      "source": "life/weekly-review.md",
+      "id": "life/weekly-review",
+      "action": "create"
+    },
+    {
+      "source": "technology/draft-backpressure-experiment.md",
+      "id": "technology/draft-backpressure-experiment",
+      "action": "create"
+    },
+    {
+      "source": "technology/epoll-slow-consumer.md",
+      "id": "technology/epoll-slow-consumer",
+      "action": "create"
+    },
+    {
+      "source": "technology/event-loop-notes.md",
+      "id": "technology/event-loop-notes",
+      "action": "create",
+      "media": [
+        {
+          "field": "heroImage",
+          "source": "src/assets/images/channel-technology.webp"
+        },
+        {
+          "field": "ogImage",
+          "source": "src/assets/images/channel-technology.webp"
+        },
+        {
+          "field": "body:../../../assets/images/channel-technology.webp",
+          "source": "src/assets/images/channel-technology.webp"
+        }
+      ]
+    },
+    {
+      "source": "technology/im-gateway-connections.md",
+      "id": "technology/im-gateway-connections",
+      "action": "create"
+    },
+    {
+      "source": "technology/message-surge-degradation.md",
+      "id": "technology/message-surge-degradation",
+      "action": "create"
+    },
+    {
+      "source": "technology/postgres-hot-rows.md",
+      "id": "technology/postgres-hot-rows",
+      "action": "create"
+    },
+    {
+      "source": "technology/protocol-debugging.md",
+      "id": "technology/protocol-debugging",
+      "action": "create"
+    },
+    {
+      "source": "technology/server-frame-loop.md",
+      "id": "technology/server-frame-loop",
+      "action": "create"
+    },
+    {
+      "source": "technology/storage-boundaries.md",
+      "id": "technology/storage-boundaries",
+      "action": "create"
+    }
+  ],
+  "errors": [],
+  "manual_review": [],
+  "content": {
+    "topics": 11,
+    "tags": 27,
+    "series_memberships": 3,
+    "related_links": 19,
+    "revisions": 2,
+    "media_files": 3,
+    "mdx_manual_review": 0
+  }
+}

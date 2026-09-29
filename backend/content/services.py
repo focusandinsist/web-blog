@@ -1,8 +1,61 @@
 from collections.abc import Iterable
+from datetime import datetime
 
 from django.core.exceptions import ValidationError
+from django.db.models import F, Prefetch, Q
+from django.db.models.functions import Coalesce, Length, Trim
+from django.utils import timezone
 
-from .models import Article, Series, SeriesArticle, Topic
+from .models import Article, ArticleRelated, Revision, Series, SeriesArticle, Tag, Topic
+
+
+class PublishedArticleQuery:
+    @staticmethod
+    def all(as_of: datetime | None = None):
+        current_time = as_of or timezone.now()
+        return (
+            Article.objects.filter(is_draft=False, pub_datetime__lte=current_time)
+            .annotate(
+                _trimmed_title=Trim("title"),
+                _trimmed_description=Trim("description"),
+                _trimmed_hero_alt=Trim("hero_alt"),
+                _title_length=Length("title"),
+                _description_length=Length("description"),
+                _hero_alt_length=Length("hero_alt"),
+            )
+            .filter(
+                Q(hero_image="") | ~Q(_trimmed_hero_alt=""),
+                ~Q(_trimmed_title=""),
+                ~Q(_trimmed_description=""),
+                channel__is_active=True,
+                primary_topic__is_active=True,
+                primary_topic__channel_id=F("channel_id"),
+                topics__pk=F("primary_topic_id"),
+                body_markdown__gt="",
+                _title_length__lte=200,
+                _description_length__gte=20,
+                _description_length__lte=180,
+                _hero_alt_length__lte=255,
+                kind__in=Article.Kind.values,
+                status__in=Article.Status.values,
+            )
+            .exclude(topics__is_active=False)
+            .annotate(_publication_order=Coalesce("mod_datetime", "pub_datetime"))
+            .order_by("-_publication_order", "channel__slug", "slug")
+            .select_related("channel", "primary_topic", "series_membership__series")
+            .prefetch_related(
+                Prefetch("topics", queryset=Topic.objects.order_by("slug")),
+                Prefetch("tags", queryset=Tag.objects.order_by("slug")),
+                Prefetch(
+                    "related_links",
+                    queryset=ArticleRelated.objects.select_related(
+                        "related_article__channel"
+                    ).order_by("position"),
+                ),
+                Prefetch("revisions", queryset=Revision.objects.order_by("date", "pk")),
+            )
+            .distinct()
+        )
 
 
 def validate_article_topics(
