@@ -6,7 +6,7 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "dev": "astro dev",
+    "dev": "astro dev --host 0.0.0.0",
     "build": "astro check && astro build && pagefind --site dist && node scripts/copy-pagefind.mjs",
     "preview": "astro preview",
     "sync": "astro sync",
@@ -15,6 +15,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "article:new": "node scripts/new-article.mjs",
+    "fixture:publication": "node scripts/generate-publication-fixture.mjs",
     "content:check": "astro sync && tsx scripts/check-content.ts",
     "check": "pnpm content:check && astro check && eslint . && prettier --check .",
     "format:check": "prettier --check .",

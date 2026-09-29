@@ -21,7 +21,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "pnpm dev --host 127.0.0.1",
+    command: "node scripts/start-playwright-server.mjs",
     url: "http://127.0.0.1:4321",
     reuseExistingServer: true,
   },

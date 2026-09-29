@@ -1,0 +1,639 @@
+{
+  "version": 1,
+  "source": "src/content/posts",
+  "articles": [
+    {
+      "id": "investment/decision-journal",
+      "slug": "decision-journal",
+      "title": "先写决策日志再行动",
+      "description": "在行动前记录假设、证据和失效条件，为之后的投资复盘保留真实依据。",
+      "bodyMarkdown": "## 假设\n\n把主要判断写成一句可以被证伪的话。\n\n## 边界\n\n提前记录什么事实出现时应当重新评估。本文不构成投资建议。\n",
+      "pubDatetime": "2026-09-06T00:00:00.000Z",
+      "modDatetime": null,
+      "channel": "investment",
+      "topics": [
+        "decision-making"
+      ],
+      "primaryTopic": "decision-making",
+      "tags": [],
+      "kind": "article",
+      "status": "complete",
+      "draft": false,
+      "featuredRank": null,
+      "series": null,
+      "related": [],
+      "heroImage": null,
+      "ogImage": null,
+      "canonicalURL": null,
+      "revisions": []
+    },
+    {
+      "id": "investment/evidence-checklist",
+      "slug": "evidence-checklist",
+      "title": "检查证据而不是强化观点",
+      "description": "用一份简短清单区分事实、推断与情绪，减少只寻找支持已有观点的信息。",
+      "bodyMarkdown": "## 分类\n\n把材料分别标记为事实、解释和预测。\n\n## 反证\n\n主动寻找会推翻当前判断的信息。本文不构成投资建议。\n",
+      "pubDatetime": "2026-08-30T00:00:00.000Z",
+      "modDatetime": null,
+      "channel": "investment",
+      "topics": [
+        "research"
+      ],
+      "primaryTopic": "research",
+      "tags": [],
+      "kind": "article",
+      "status": "complete",
+      "draft": false,
+      "featuredRank": null,
+      "series": null,
+      "related": [],
+      "heroImage": null,
+      "ogImage": null,
+      "canonicalURL": null,
+      "revisions": []
+    },
+    {
+      "id": "investment/opinion-vs-evidence",
+      "slug": "opinion-vs-evidence",
+      "title": "区分观点与证据",
+      "description": "通过来源、可验证性和反证条件区分投资研究中的观点、事实与推断。",
+      "bodyMarkdown": "## 标记信息类型\n\n事实需要来源，推断需要过程，观点则需要说明立场和适用范围。\n\n## 主动寻找反证\n\n为核心判断写下可以推翻它的新事实，避免只累计支持材料。本文不构成投资建议。\n",
+      "pubDatetime": "2026-08-15T00:00:00.000Z",
+      "modDatetime": null,
+      "channel": "investment",
+      "topics": [
+        "research",
+        "decision-making"
+      ],
+      "primaryTopic": "research",
+      "tags": [
+        "evidence",
+        "research"
+      ],
+      "kind": "article",
+      "status": "evolving",
+      "draft": false,
+      "featuredRank": null,
+      "series": null,
+      "related": [
+        "investment/evidence-checklist",
+        "investment/wrong-assumption-review"
+      ],
+      "heroImage": null,
+      "ogImage": null,
+      "canonicalURL": null,
+      "revisions": []
+    },
+    {
+      "id": "investment/position-sizing-rules",
+      "slug": "position-sizing-rules",
+      "title": "先写仓位规则再看机会",
+      "description": "用最大损失、相关性和调整条件记录仓位规则，让风险边界先于收益判断。",
+      "bodyMarkdown": "## 计算最大损失\n\n先决定组合可以承受的损失，再根据失效点距离反推仓位上限。\n\n## 记录调整条件\n\n加减仓必须对应证据变化，而不是价格波动本身。本文不构成投资建议。\n",
+      "pubDatetime": "2026-08-17T00:00:00.000Z",
+      "modDatetime": null,
+      "channel": "investment",
+      "topics": [
+        "risk-management"
+      ],
+      "primaryTopic": "risk-management",
+      "tags": [
+        "position-sizing",
+        "risk"
+      ],
+      "kind": "article",
+      "status": "complete",
+      "draft": false,
+      "featuredRank": null,
+      "series": null,
+      "related": [
+        "investment/risk-budget"
+      ],
+      "heroImage": null,
+      "ogImage": null,
+      "canonicalURL": null,
+      "revisions": []
+    },
+    {
+      "id": "investment/risk-budget",
+      "slug": "risk-budget",
+      "title": "风险预算比目标收益更具体",
+      "description": "从可承受损失出发思考仓位和期限，用明确边界替代对短期收益的想象。",
+      "bodyMarkdown": "## 可承受范围\n\n先明确损失会不会影响生活和长期计划。\n\n## 约束\n\n仓位是风险约束的结果。本文不构成投资建议。\n",
+      "pubDatetime": "2026-09-03T00:00:00.000Z",
+      "modDatetime": null,
+      "channel": "investment",
+      "topics": [
+        "risk-management"
+      ],
+      "primaryTopic": "risk-management",
+      "tags": [],
+      "kind": "article",
+      "status": "complete",
+      "draft": false,
+      "featuredRank": null,
+      "series": null,
+      "related": [],
+      "heroImage": null,
+      "ogImage": null,
+      "canonicalURL": null,
+      "revisions": []
+    },
+    {
+      "id": "investment/wrong-assumption-review",
+      "slug": "wrong-assumption-review",
+      "title": "复盘一次错误假设",
+      "description": "把结果、原始假设和当时可见证据分开，避免用事后信息重写投资决策。",
+      "bodyMarkdown": "## 还原原始判断\n\n只使用决策当日已有的信息，写出当时认为最可能发生的路径。\n\n## 找到失效信号\n\n区分假设错误和执行偏差，并记录下次应更早观察的失效条件。本文不构成投资建议。\n",
+      "pubDatetime": "2026-08-19T00:00:00.000Z",
+      "modDatetime": null,
+      "channel": "investment",
+      "topics": [
+        "decision-making",
+        "research"
+      ],
+      "primaryTopic": "decision-making",
+      "tags": [
+        "review",
+        "assumptions"
+      ],
+      "kind": "article",
+      "status": "complete",
+      "draft": false,
+      "featuredRank": null,
+      "series": null,
+      "related": [
+        "investment/decision-journal",
+        "investment/opinion-vs-evidence"
+      ],
+      "heroImage": null,
+      "ogImage": null,
+      "canonicalURL": null,
+      "revisions": []
+    },
+    {
+      "id": "life/learning-after-ten-years",
+      "slug": "learning-after-ten-years",
+      "title": "开发十年后如何继续学习",
+      "description": "从问题清单、最小实验和复盘周期出发，整理长期开发工作中的学习方式。",
+      "bodyMarkdown": "## 从真实问题开始\n\n先记录工作中反复出现的问题，再选择能够改变下一次行动的资料。\n\n## 用实验代替收藏\n\n每次学习只安排一个小实验，并在一周后检查它是否改变了判断或操作方式。\n",
+      "pubDatetime": "2026-08-20T00:00:00.000Z",
+      "modDatetime": null,
+      "channel": "life",
+      "topics": [
+        "reading",
+        "reflection"
+      ],
+      "primaryTopic": "reading",
+      "tags": [
+        "learning",
+        "career"
+      ],
+      "kind": "article",
+      "status": "complete",
+      "draft": false,
+      "featuredRank": null,
+      "series": null,
+      "related": [
+        "life/reading-with-questions",
+        "life/personal-knowledge-system"
+      ],
+      "heroImage": null,
+      "ogImage": null,
+      "canonicalURL": null,
+      "revisions": []
+    },
+    {
+      "id": "life/long-distance-walk",
+      "slug": "long-distance-walk",
+      "title": "一次长途步行记录",
+      "description": "记录路线、补给和注意力变化，观察长时间步行如何重新安排一天的节奏。",
+      "bodyMarkdown": "## 路线与补给\n\n提前标记补水点和退出路线，让体力变化不会变成临时决策压力。\n\n## 注意力变化\n\n前半程关注速度，后半程开始留意街区、声音和身体反馈，记录也随之变得具体。\n",
+      "pubDatetime": "2026-08-18T00:00:00.000Z",
+      "modDatetime": null,
+      "channel": "life",
+      "topics": [
+        "observation"
+      ],
+      "primaryTopic": "observation",
+      "tags": [
+        "walking",
+        "attention"
+      ],
+      "kind": "article",
+      "status": "complete",
+      "draft": false,
+      "featuredRank": null,
+      "series": null,
+      "related": [
+        "life/walking-route"
+      ],
+      "heroImage": null,
+      "ogImage": null,
+      "canonicalURL": null,
+      "revisions": []
+    },
+    {
+      "id": "life/personal-knowledge-system",
+      "slug": "personal-knowledge-system",
+      "title": "个人知识系统只保留下一步",
+      "description": "用收集、提炼和行动三个环节维护个人知识系统，避免笔记成为静态仓库。",
+      "bodyMarkdown": "## 收集需要入口\n\n所有临时记录先进入同一个入口，定期处理，而不是立即设计复杂分类。\n\n## 提炼需要出口\n\n一条笔记最终应连接到问题、项目或下一步行动；没有用途的材料可以直接归档。\n",
+      "pubDatetime": "2026-08-16T00:00:00.000Z",
+      "modDatetime": null,
+      "channel": "life",
+      "topics": [
+        "reflection",
+        "reading"
+      ],
+      "primaryTopic": "reflection",
+      "tags": [
+        "notes",
+        "workflow"
+      ],
+      "kind": "article",
+      "status": "evolving",
+      "draft": false,
+      "featuredRank": null,
+      "series": null,
+      "related": [
+        "life/weekly-review",
+        "life/learning-after-ten-years"
+      ],
+      "heroImage": null,
+      "ogImage": null,
+      "canonicalURL": null,
+      "revisions": []
+    },
+    {
+      "id": "life/reading-with-questions",
+      "slug": "reading-with-questions",
+      "title": "带着问题阅读",
+      "description": "把阅读从信息收集改成问题驱动的实践，并记录哪些内容真正改变了行动。",
+      "bodyMarkdown": "## 问题先行\n\n开始阅读前先写下希望回答的问题。\n\n## 回看\n\n一周后检查笔记是否帮助了一个真实决定。\n",
+      "pubDatetime": "2026-09-07T00:00:00.000Z",
+      "modDatetime": null,
+      "channel": "life",
+      "topics": [
+        "reading"
+      ],
+      "primaryTopic": "reading",
+      "tags": [],
+      "kind": "article",
+      "status": "complete",
+      "draft": false,
+      "featuredRank": null,
+      "series": null,
+      "related": [],
+      "heroImage": null,
+      "ogImage": null,
+      "canonicalURL": null,
+      "revisions": []
+    },
+    {
+      "id": "life/walking-route",
+      "slug": "walking-route",
+      "title": "固定路线也有新观察",
+      "description": "记录一次普通步行中的细节变化，以及离开屏幕后重新获得注意力的过程。",
+      "bodyMarkdown": "## 路线\n\n固定路线减少了选择，也让细微变化更容易被看见。\n\n## 注意力\n\n不带耳机的半小时给一天留出了安静的间隔。\n",
+      "pubDatetime": "2026-09-01T00:00:00.000Z",
+      "modDatetime": null,
+      "channel": "life",
+      "topics": [
+        "observation"
+      ],
+      "primaryTopic": "observation",
+      "tags": [],
+      "kind": "article",
+      "status": "complete",
+      "draft": false,
+      "featuredRank": null,
+      "series": null,
+      "related": [],
+      "heroImage": null,
+      "ogImage": null,
+      "canonicalURL": null,
+      "revisions": []
+    },
+    {
+      "id": "life/weekly-review",
+      "slug": "weekly-review",
+      "title": "一次轻量的每周复盘",
+      "description": "用事实、判断和下一步构成简短复盘，让记录能够在下一周继续发挥作用。",
+      "bodyMarkdown": "## 事实\n\n先列出这一周真正完成和没有完成的事情。\n\n## 下一步\n\n只保留一个最值得验证的调整。\n",
+      "pubDatetime": "2026-09-04T00:00:00.000Z",
+      "modDatetime": null,
+      "channel": "life",
+      "topics": [
+        "reflection"
+      ],
+      "primaryTopic": "reflection",
+      "tags": [],
+      "kind": "article",
+      "status": "complete",
+      "draft": false,
+      "featuredRank": null,
+      "series": null,
+      "related": [],
+      "heroImage": null,
+      "ogImage": null,
+      "canonicalURL": null,
+      "revisions": []
+    },
+    {
+      "id": "technology/draft-backpressure-experiment",
+      "slug": "draft-backpressure-experiment",
+      "title": "未发布的背压实验",
+      "description": "用于验证生产搜索索引不会包含草稿内容的内部测试记录。",
+      "bodyMarkdown": "## 实验标识\n\ndraft-backpressure-token 只用于自动化验证，不应出现在生产搜索结果中。\n\n## 预期\n\n草稿不会生成公开文章路由，也不会进入 Pagefind 索引。\n",
+      "pubDatetime": "2026-08-30T00:00:00.000Z",
+      "modDatetime": null,
+      "channel": "technology",
+      "topics": [
+        "concurrency-engineering"
+      ],
+      "primaryTopic": "concurrency-engineering",
+      "tags": [
+        "testing"
+      ],
+      "kind": "article",
+      "status": "evolving",
+      "draft": true,
+      "featuredRank": null,
+      "series": null,
+      "related": [],
+      "heroImage": null,
+      "ogImage": null,
+      "canonicalURL": null,
+      "revisions": []
+    },
+    {
+      "id": "technology/epoll-slow-consumer",
+      "slug": "epoll-slow-consumer",
+      "title": "epoll 与慢消费者：先看就绪队列",
+      "description": "从就绪事件、应用队列和消费速率三个层次定位一次 epoll 服务中的慢消费者问题。",
+      "bodyMarkdown": "## 先区分两种堆积\n\n`epoll_wait` 返回得快，不代表请求已经被及时消费。内核就绪队列和应用任务队列需要分别观测[^window]。\n\n```cpp file=\"consumer.cpp\" showLineNumbers\nconst auto ready = epoll_wait(fd, events, capacity, timeout_ms);\nqueue_depth.observe(worker_queue.size()); // [!code highlight]\n```\n\n## 再限制单次处理量\n\n一次取走过多事件会让其他连接等待。固定批次上限，并在队列持续增长时降低非关键任务的进入速率。\n\n```mermaid\nflowchart LR\n  Socket --> ReadyQueue\n  ReadyQueue --> WorkerQueue\n  WorkerQueue --> Consumer\n```\n\n[^window]: 两个队列应使用同一采样窗口，否则趋势无法直接比较。\n",
+      "pubDatetime": "2026-08-29T00:00:00.000Z",
+      "modDatetime": "2026-08-30T02:00:00.000Z",
+      "channel": "technology",
+      "topics": [
+        "systems-programming",
+        "concurrency-engineering"
+      ],
+      "primaryTopic": "systems-programming",
+      "tags": [
+        "Linux",
+        "epoll",
+        "C++",
+        "performance"
+      ],
+      "kind": "article",
+      "status": "evolving",
+      "draft": false,
+      "featuredRank": null,
+      "series": null,
+      "related": [
+        "technology/event-loop-notes",
+        "technology/message-surge-degradation"
+      ],
+      "heroImage": null,
+      "ogImage": null,
+      "canonicalURL": null,
+      "revisions": [
+        {
+          "date": "2026-08-30T02:00:00.000Z",
+          "summary": "补充就绪队列与应用队列的区分。"
+        }
+      ]
+    },
+    {
+      "id": "technology/event-loop-notes",
+      "slug": "event-loop-notes",
+      "title": "事件循环中的延迟从哪里来",
+      "description": "从任务排队、阻塞调用和调度抖动三个角度记录一次延迟问题的定位过程。",
+      "bodyMarkdown": "## 问题\n\n一次延迟尖峰往往由多个很小的等待叠加而成。先确认现象发生在哪一层，再决定需要增加哪些观测点[^queue]。\n\n**现象边界：**\n\n不要从平均值开始。尾延迟、队列深度和超时分布更容易暴露慢消费者。\n\n## 测量\n\n下面的最小采样同时保留队列深度和等待阈值。\n\n```ts file=\"latency.ts\" showLineNumbers\nconst queueDepth = sampleQueueDepth(); // [!code highlight]\nconst timeoutMs = 30; // [!code --]\nconst timeoutMs = 50; // [!code ++]\n```\n\n### 关键指标\n\n| 指标     | 用途                   |\n| -------- | ---------------------- |\n| 队列深度 | 判断生产与消费是否失衡 |\n| 尾延迟   | 观察少量慢请求的影响   |\n\n```mermaid\nflowchart LR\n  Producer --> Queue\n  Queue --> Consumer\n```\n\n![蓝灰色频道配色](../../../assets/images/channel-technology.webp \"频道配色占位图\")\n\n## 结论\n\n先测量队列等待，再逐段排除阻塞调用和调度抖动。\n\n[^queue]: 队列数据应在同一采样窗口内比较，避免时间范围不一致。\n\n## 参考资料\n\n- Node.js, _The Node.js Event Loop_, https://nodejs.org/，访问于 2026-09-09。\n",
+      "pubDatetime": "2026-09-08T00:00:00.000Z",
+      "modDatetime": "2026-09-09T01:30:00.000Z",
+      "channel": "technology",
+      "topics": [
+        "concurrency-engineering"
+      ],
+      "primaryTopic": "concurrency-engineering",
+      "tags": [
+        "TypeScript",
+        "performance"
+      ],
+      "kind": "article",
+      "status": "complete",
+      "draft": false,
+      "featuredRank": null,
+      "series": {
+        "id": "event-loop-diagnostics",
+        "order": 2
+      },
+      "related": [
+        "life/reading-with-questions",
+        "investment/decision-journal"
+      ],
+      "heroImage": {
+        "url": "/media/articles/technology/event-loop-notes/hero.webp",
+        "alt": "技术频道头图",
+        "width": 960,
+        "height": 540
+      },
+      "ogImage": "/media/articles/technology/event-loop-notes/og.webp",
+      "canonicalURL": null,
+      "revisions": [
+        {
+          "date": "2026-09-09T01:30:00.000Z",
+          "summary": "补充延迟排查步骤与关键指标。"
+        }
+      ]
+    },
+    {
+      "id": "technology/im-gateway-connections",
+      "slug": "im-gateway-connections",
+      "title": "IM 网关连接治理从生命周期开始",
+      "description": "用连接状态、心跳期限和重连预算整理 IM 网关的连接治理边界。",
+      "bodyMarkdown": "## 定义连接状态\n\n连接建立、鉴权、活跃、待关闭和已关闭必须有单向状态转换，避免多个协程重复回收同一连接。\n\n## 控制重连成本\n\n断线高峰时使用退避和随机抖动，并为单个用户设置重连预算，避免恢复过程制造新的洪峰。\n",
+      "pubDatetime": "2026-08-27T00:00:00.000Z",
+      "modDatetime": null,
+      "channel": "technology",
+      "topics": [
+        "realtime-systems",
+        "concurrency-engineering"
+      ],
+      "primaryTopic": "realtime-systems",
+      "tags": [
+        "Go",
+        "WebSocket",
+        "operations"
+      ],
+      "kind": "article",
+      "status": "complete",
+      "draft": false,
+      "featuredRank": null,
+      "series": null,
+      "related": [
+        "technology/epoll-slow-consumer"
+      ],
+      "heroImage": null,
+      "ogImage": null,
+      "canonicalURL": null,
+      "revisions": []
+    },
+    {
+      "id": "technology/message-surge-degradation",
+      "slug": "message-surge-degradation",
+      "title": "消息洪峰下先定义降级顺序",
+      "description": "用业务优先级、队列水位和恢复条件设计消息洪峰期间可撤销的降级策略。",
+      "bodyMarkdown": "## 排出业务顺序\n\n先保留身份、状态同步和明确回复，再延迟统计、推荐和可重建事件。\n\n## 写清恢复条件\n\n降级不能只靠人工感觉结束。队列水位、消费延迟和错误率连续稳定后，再逐级恢复流量。\n",
+      "pubDatetime": "2026-08-23T00:00:00.000Z",
+      "modDatetime": null,
+      "channel": "technology",
+      "topics": [
+        "realtime-systems",
+        "concurrency-engineering"
+      ],
+      "primaryTopic": "realtime-systems",
+      "tags": [
+        "queues",
+        "reliability",
+        "operations"
+      ],
+      "kind": "article",
+      "status": "complete",
+      "draft": false,
+      "featuredRank": null,
+      "series": null,
+      "related": [
+        "technology/epoll-slow-consumer",
+        "technology/im-gateway-connections"
+      ],
+      "heroImage": null,
+      "ogImage": null,
+      "canonicalURL": null,
+      "revisions": []
+    },
+    {
+      "id": "technology/postgres-hot-rows",
+      "slug": "postgres-hot-rows",
+      "title": "PostgreSQL 热点行不是索引问题",
+      "description": "从锁等待、写入所有权和数据模型三个角度记录 PostgreSQL 热点行的处理方法。",
+      "bodyMarkdown": "## 先确认锁等待\n\n慢查询只说明耗时，事务等待关系才能说明是否存在同一行上的串行竞争。\n\n## 改变写入边界\n\n将高频计数拆成分片记录，再异步归并，可以缩短锁持有时间，但需要明确读取一致性的取舍。\n",
+      "pubDatetime": "2026-08-25T00:00:00.000Z",
+      "modDatetime": null,
+      "channel": "technology",
+      "topics": [
+        "data-systems"
+      ],
+      "primaryTopic": "data-systems",
+      "tags": [
+        "PostgreSQL",
+        "database",
+        "performance"
+      ],
+      "kind": "case-study",
+      "status": "complete",
+      "draft": false,
+      "featuredRank": null,
+      "series": null,
+      "related": [
+        "technology/storage-boundaries"
+      ],
+      "heroImage": null,
+      "ogImage": null,
+      "canonicalURL": null,
+      "revisions": []
+    },
+    {
+      "id": "technology/protocol-debugging",
+      "slug": "protocol-debugging",
+      "title": "协议调试先确认事实",
+      "description": "记录如何用最小抓包和状态对照定位协议问题，并把猜测收敛为可以验证的假设。",
+      "bodyMarkdown": "## 现象\n\n协议故障的日志通常只展示了链路的一侧。\n\n## 方法\n\n对齐时间、请求标识和状态转换后，再判断错误发生在哪一层。\n",
+      "pubDatetime": "2026-09-02T00:00:00.000Z",
+      "modDatetime": null,
+      "channel": "technology",
+      "topics": [
+        "systems-programming"
+      ],
+      "primaryTopic": "systems-programming",
+      "tags": [],
+      "kind": "article",
+      "status": "complete",
+      "draft": false,
+      "featuredRank": null,
+      "series": {
+        "id": "event-loop-diagnostics",
+        "order": 1
+      },
+      "related": [],
+      "heroImage": null,
+      "ogImage": null,
+      "canonicalURL": null,
+      "revisions": []
+    },
+    {
+      "id": "technology/server-frame-loop",
+      "slug": "server-frame-loop",
+      "title": "服务器帧循环需要时间预算",
+      "description": "把游戏服务器帧循环拆成输入、模拟和输出阶段，并为每个阶段保留可观测的时间预算。",
+      "bodyMarkdown": "## 拆分每帧预算\n\n输入处理、世界模拟和网络输出分别计时，才能知道超时来自计算还是等待。\n\n## 避免追赶失控\n\n落后时无限补帧会继续挤压输出。设置最大追赶次数，并记录被跳过的非关键工作。\n",
+      "pubDatetime": "2026-08-21T00:00:00.000Z",
+      "modDatetime": null,
+      "channel": "technology",
+      "topics": [
+        "game-technology",
+        "realtime-systems"
+      ],
+      "primaryTopic": "game-technology",
+      "tags": [
+        "C++",
+        "game-server",
+        "latency"
+      ],
+      "kind": "case-study",
+      "status": "evolving",
+      "draft": false,
+      "featuredRank": null,
+      "series": null,
+      "related": [
+        "technology/event-loop-notes"
+      ],
+      "heroImage": null,
+      "ogImage": null,
+      "canonicalURL": null,
+      "revisions": []
+    },
+    {
+      "id": "technology/storage-boundaries",
+      "slug": "storage-boundaries",
+      "title": "存储边界如何影响系统设计",
+      "description": "整理数据所有权、写入路径和恢复目标之间的关系，避免把存储只看成技术选型。",
+      "bodyMarkdown": "## 边界\n\n先明确谁拥有数据，再决定由哪个组件持久化。\n\n## 取舍\n\n恢复时间和一致性要求会直接改变写入路径。\n",
+      "pubDatetime": "2026-09-05T00:00:00.000Z",
+      "modDatetime": null,
+      "channel": "technology",
+      "topics": [
+        "data-systems",
+        "concurrency-engineering"
+      ],
+      "primaryTopic": "data-systems",
+      "tags": [],
+      "kind": "article",
+      "status": "complete",
+      "draft": false,
+      "featuredRank": null,
+      "series": {
+        "id": "event-loop-diagnostics",
+        "order": 3
+      },
+      "related": [],
+      "heroImage": null,
+      "ogImage": null,
+      "canonicalURL": null,
+      "revisions": []
+    }
+  ]
+}
