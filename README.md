@@ -18,7 +18,7 @@
 ## 技术栈
 
 - Astro 7、TypeScript 6、Markdown
-- Django 5.2、Django REST Framework、SQLite
+- Django 5.2、Django REST Framework、PostgreSQL
 - Tailwind CSS 4
 - Shiki、Mermaid、PhotoSwipe、Pagefind
 - Vitest、Playwright、axe-core
@@ -35,9 +35,16 @@
 pnpm install
 Copy-Item .env.example .env
 python -m pip install -r backend/requirements.txt
+```
+
+先启动本机 PostgreSQL，并按本地数据库账号修改 `.env` 中的 `DATABASE_URL`。Render 部署时，把 Render PostgreSQL 提供的连接 URL 配置为后端服务的 `DATABASE_URL` 环境变量。然后运行：
+
+```powershell
 pnpm django:migrate
 pnpm dev
 ```
+
+需要初始示例文章时，在迁移完成后运行 `python backend/manage.py import_publication --apply`，将仓库中的案例文章及关联数据写入 PostgreSQL。
 
 `pnpm dev` 会启动 Django 和 Astro，并在 API 健康检查通过后启动 Astro。默认地址为 Django Admin/API `http://127.0.0.1:8000/` 和 Astro `http://127.0.0.1:4321/`。按 `Ctrl+C` 会停止两个服务。
 
@@ -97,7 +104,7 @@ web-blog/
 ├── astro.config.ts                 # Astro、Markdown、Shiki 和 Mermaid 配置
 ├── astro-paper.config.ts           # 站点信息、分页、主题、搜索和分享配置
 ├── .env.example                    # Django、API 和 Astro 本地配置
-├── backend/                        # Django Admin、SQLite 模型和发布 API
+├── backend/                        # Django Admin、PostgreSQL 模型和发布 API
 ├── public/                         # 保持固定公开路径的资源
 ├── scripts/
 │   ├── dev.mjs                     # 并行启动 Django 和 Astro

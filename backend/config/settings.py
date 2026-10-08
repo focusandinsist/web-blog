@@ -1,8 +1,13 @@
 from pathlib import Path
 import os
 
+import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
+from dotenv import load_dotenv
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR.parent / ".env")
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-local-development-key")
 DEBUG = os.environ.get("DJANGO_DEBUG", "1") == "1"
@@ -49,12 +54,19 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
+database_url = os.environ.get("DATABASE_URL")
+if not database_url:
+    raise ImproperlyConfigured("DATABASE_URL must point to a PostgreSQL database.")
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.environ.get("DJANGO_DB_NAME", str(BASE_DIR / "db.sqlite3")),
-    }
+    "default": dj_database_url.parse(
+        database_url,
+        conn_max_age=600,
+        ssl_require=os.environ.get("DJANGO_DEBUG", "1") != "1",
+    )
 }
+if DATABASES["default"]["ENGINE"] != "django.db.backends.postgresql":
+    raise ImproperlyConfigured("DATABASE_URL must use PostgreSQL.")
 
 AUTH_PASSWORD_VALIDATORS = []
 LANGUAGE_CODE = "zh-hans"

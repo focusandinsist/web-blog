@@ -36,8 +36,8 @@ function stopChildren(exitCode = 0) {
   process.exitCode = exitCode;
 }
 
-function spawnService(command, args, name) {
-  const child = spawn(command, args, { cwd: root, env, stdio: "inherit" });
+function spawnService(command, args, name, serviceEnv = env) {
+  const child = spawn(command, args, { cwd: root, env: serviceEnv, stdio: "inherit" });
   child.on("error", error => {
     process.stderr.write(`${name} could not start: ${error.message}\n`);
     stopChildren(1);
@@ -104,6 +104,9 @@ if (!stopping) {
   astro = spawnService(
     process.execPath,
     [astroCli, "dev", "--host", astroHost, "--port", astroPort],
-    "Astro"
+    "Astro",
+    // Astro uses this marker to prevent spawning another daemon in agent environments.
+    // Keep the actual process attached so this supervisor owns its lifetime.
+    { ...env, ASTRO_DEV_BACKGROUND: "1" }
   );
 }
