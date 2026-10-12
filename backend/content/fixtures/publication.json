@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "source": "src/content/posts",
+  "source": "content/source/posts",
   "articles": [
     {
       "id": "investment/decision-journal",

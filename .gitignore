@@ -25,6 +25,7 @@ pnpm-debug.log*
 
 # pagefind
 public/pagefind
+frontend/public/pagefind/
 
 # pnpm
 .pnpm-store

@@ -11,6 +11,7 @@ from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand, CommandError
+from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 from django.utils.text import slugify
@@ -201,14 +202,19 @@ class Command(BaseCommand):
         parser.add_argument(
             "--source",
             type=Path,
-            default=Path("src/content/posts"),
-            help="Article source directory relative to the repository root.",
+            default=Path("content/source/posts"),
+            help="Article source directory relative to the backend directory.",
         )
         parser.add_argument("--apply", action="store_true", help="Persist the import in one transaction.")
         parser.add_argument("--report", type=Path, help="Write the JSON report to this path.")
 
     def handle(self, *args, **options):
-        source_root = options["source"].resolve()
+        source_option = options["source"]
+        source_root = (
+            source_option
+            if source_option.is_absolute()
+            else settings.BASE_DIR / source_option
+        ).resolve()
         if not source_root.is_dir():
             raise CommandError(f"Source directory does not exist: {source_root}")
 
@@ -438,7 +444,13 @@ class Command(BaseCommand):
                 if not media_key.startswith("body:"):
                     continue
                 reference = media_key.removeprefix("body:")
-                path_hash = hashlib.sha256(reference.encode("utf-8")).hexdigest()[:12]
+                reference_key = reference
+                media_source_root = (settings.BASE_DIR / "content" / "source" / "media").resolve()
+                if media_path.is_relative_to(media_source_root.resolve()):
+                    # Preserve the public URL hash generated before the source
+                    # was moved from src/assets/images/ into backend/content/source/media/.
+                    reference_key = f"../../../assets/images/{media_path.name}"
+                path_hash = hashlib.sha256(reference_key.encode("utf-8")).hexdigest()[:12]
                 relative_name = (
                     Path("articles")
                     / item.channel_slug
@@ -448,7 +460,7 @@ class Command(BaseCommand):
                 )
                 stored_name = relative_name.as_posix()
                 stored_name = self.save_media(media_path, stored_name)
-                body_markdown = body_markdown.replace(reference, f"/{default_storage.url(stored_name).lstrip('/')}")
+                body_markdown = body_markdown.replace(reference, default_storage.url(stored_name))
             article.body_markdown = body_markdown
             article.save()
             article.revisions.all().delete()

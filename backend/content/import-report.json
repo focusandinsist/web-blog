@@ -1,7 +1,7 @@
 {
   "version": 1,
   "mode": "apply",
-  "source": "src/content/posts",
+  "source": "content/source/posts",
   "summary": {
     "files": 21,
     "created": 21,

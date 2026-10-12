@@ -5,42 +5,57 @@ permissions:
 
 on:
   pull_request:
-    types:
-      - opened
-      - edited
-      - synchronize
-      - reopened
+    types: [opened, edited, synchronize, reopened]
   workflow_call:
 
 jobs:
-  build:
-    name: Code standards & build
+  frontend:
+    name: Frontend checks and build
     runs-on: ubuntu-latest
-    timeout-minutes: 3
-
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
     steps:
-      - name: "☁️ Checkout repository"
-        uses: actions/checkout@v4
-
-      - name: "📦 Install pnpm"
-        uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
         with:
-          version: "11.3.0"
-
-      - name: Use Node.js
-        uses: actions/setup-node@v4
+          version: "11.25.0"
+      - uses: actions/setup-node@v4
         with:
           node-version: "24"
-          cache: "pnpm"
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      - run: pnpm test
 
-      - name: "📦 Install dependencies"
-        run: pnpm install --frozen-lockfile
-
-      - name: "🔎 Lint code"
-        run: pnpm run lint
-
-      - name: "📝 Checking code format"
-        run: pnpm run format:check
-
-      - name: "🚀 Build the project"
-        run: pnpm run build
+  backend:
+    name: Backend checks and tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: web_blog
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd="pg_isready -U postgres -d web_blog"
+          --health-interval=10s --health-timeout=5s --health-retries=5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/web_blog
+      DJANGO_SECRET_KEY: ci-only-secret
+      DJANGO_DEBUG: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: python -m pip install -r requirements.txt
+      - run: python manage.py check
+      - run: python manage.py test

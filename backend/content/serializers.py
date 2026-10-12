@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from django.conf import settings
+from urllib.parse import urljoin
 
 from .models import Article, Channel, Revision, Tag, Topic
 
@@ -73,6 +75,8 @@ class ArticleSerializer(serializers.Serializer):
         return article.canonical_url or None
 
     def absolute_url(self, value):
+        if settings.DJANGO_PUBLIC_ORIGIN:
+            return urljoin(f"{settings.DJANGO_PUBLIC_ORIGIN}/", value)
         request = self.context.get("request")
         return request.build_absolute_uri(value) if request else value
 

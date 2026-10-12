@@ -1,0 +1,30 @@
+{
+  "health": {
+    "status": "ok"
+  },
+  "articleCount": 20,
+  "taxonomyChannels": 3,
+  "taxonomyTopics": 11,
+  "articleIds": [
+    "technology/event-loop-notes",
+    "life/reading-with-questions",
+    "investment/decision-journal",
+    "technology/storage-boundaries",
+    "life/weekly-review",
+    "investment/risk-budget",
+    "technology/protocol-debugging",
+    "life/walking-route",
+    "technology/epoll-slow-consumer",
+    "investment/evidence-checklist",
+    "technology/im-gateway-connections",
+    "technology/postgres-hot-rows",
+    "technology/message-surge-degradation",
+    "technology/server-frame-loop",
+    "life/learning-after-ten-years",
+    "investment/wrong-assumption-review",
+    "life/long-distance-walk",
+    "investment/position-sizing-rules",
+    "life/personal-knowledge-system",
+    "investment/opinion-vs-evidence"
+  ]
+}

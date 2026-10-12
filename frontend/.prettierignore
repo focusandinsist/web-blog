@@ -1,0 +1,24 @@
+# Ignore everything
+/*
+
+# Except these files & folders
+!/src
+!/public
+!/.github
+!/tests
+!/test
+!tsconfig.json
+!astro.config.ts
+!vitest.config.ts
+!playwright.config.ts
+!package.json
+!.prettierrc
+!eslint.config.js
+!README.md
+!.vscode
+
+# Generated Pagefind assets are created during builds and are not source files.
+public/pagefind/
+
+# Ignore MDX files
+*.mdx
